@@ -16,15 +16,13 @@ public class FloorIsLava extends ApplicationAdapter {
 	private SpriteBatch batch;
 
 
-	// public static PlayServices playServices;
+	public static PlayServices playServices;
 
-	/*
-	public PongGame(PlayServices playServices)
-	{
+
+	public FloorIsLava(PlayServices playServices) {
 		this.playServices = playServices;
-		// setScreen(new MainMenu(this));
 	}
-	*/
+
 	
 	@Override
 	public void create () {
