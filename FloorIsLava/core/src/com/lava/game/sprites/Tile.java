@@ -1,6 +1,10 @@
 package com.lava.game.sprites;
 
+import com.badlogic.gdx.graphics.Texture;
+
 import java.lang.reflect.Array;
+
+import static com.badlogic.gdx.math.MathUtils.random;
 
 /**
  * Created by moe on 08.03.18.
@@ -9,19 +13,21 @@ import java.lang.reflect.Array;
 public class Tile {
 
     private Board board;
+    private Texture texture;
 
     private int hp;
     private int xPos;
     private int yPos;
     private int halfLife;
-    public static int deteriorationValue = 10;
+    public static int deteriorationValue = 2;
 
-    public Tile(Board board, int xPos, int yPos, int halfLife) {
+    public Tile(Board board, int xPos, int yPos) {
         this.board = board;
-        this.halfLife = halfLife;
+        this.halfLife = random(1,5);
         this.hp = 100;
         this.xPos = xPos;
         this.yPos = yPos;
+        this.texture = new Texture("Tile.png");
     }
 
     public int getHalfLife() {
@@ -54,7 +60,19 @@ public class Tile {
             board.dispose(this);
         } else {
             hp -= deterioration;
+            if (hp <= 75 && hp > 50) {
+                texture = new Texture("TilaA.png");
+            } else if (hp <= 50 && hp > 25) {
+                texture = new Texture("TilaA2.png");
+            } else if (hp <= 25 && hp > 0) {
+                texture = new Texture("TilaA4.png");
+            }
         }
     }
+
+    public Texture getTexture() {
+        return texture;
+    }
+
 
 }
