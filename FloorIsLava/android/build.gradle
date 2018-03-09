@@ -3,7 +3,8 @@ android {
         config {
             keyAlias 'key0'
             keyPassword 'gruppe6'
-            storeFile file('/home/moe/workspace/progark/lava/secret_key.jks')
+            storeFile file('/Users/Sebastian/OneDrive/TDT4240-ProgArk/lava/secret_key.jks')
+            //storeFile file('/home/moe/workspace/progark/lava/secret_key.jks')
             storePassword 'gruppe6'
         }
     }

@@ -6,12 +6,16 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector3;
 import com.lava.game.FloorIsLava;
+import com.badlogic.gdx.math.*;
 
 /**
  * Created by moe on 08.03.18.
  */
 
 public class MenuState extends State {
+    Texture singlePlayer;
+    Texture multiplayer;
+    Vector3 tmp;
 
     private Texture signIn;
     private Texture singlePlayer;
@@ -35,7 +39,14 @@ public class MenuState extends State {
 
     @Override
     protected void handleInput() {
-
+        if(Gdx.input.justTouched()) {
+            tmp = new Vector3( Gdx.input.getX(), Gdx.input.getY(),0);
+            cam.unproject(tmp);
+            Rectangle textureBounds = new Rectangle((FloorIsLava.WIDTH/2) - (singlePlayer.getWidth()/2), FloorIsLava.HEIGHT / 2 + 160, singlePlayer.getWidth(), singlePlayer.getHeight());
+            if(textureBounds.contains(tmp.x,tmp.y)) {
+                gsm.set(new PlayState(gsm));
+            }
+        }
     }
 
 
@@ -81,6 +92,14 @@ public class MenuState extends State {
 
     @Override
     public void render(SpriteBatch sb) {
+        sb.begin();
+        sb.setProjectionMatrix(cam.combined);
+        //Gdx.graphics.setWindowedMode(FloorIsLava.WIDTH, FloorIsLava.HEIGHT);
+        cam.setToOrtho(false, FloorIsLava.WIDTH/2, FloorIsLava.HEIGHT / 2);
+        cam.update();
+        sb.draw(singlePlayer, (FloorIsLava.WIDTH/2) - (singlePlayer.getWidth()/2), FloorIsLava.HEIGHT / 2 + 160);
+        sb.draw(multiplayer, (FloorIsLava.WIDTH/2) - (multiplayer.getWidth()/2), FloorIsLava.HEIGHT / 2 - 160);
+        sb.end();
         sb.begin();
         sb.setProjectionMatrix(cam.combined);
         sb.draw(signIn, 220,40, 140, 40);
