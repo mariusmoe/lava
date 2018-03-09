@@ -5,4 +5,7 @@ package com.lava.game.sprites;
  */
 
 public class Player {
+
+    private int xPos;
+    private int yPos;
 }
