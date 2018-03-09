@@ -96,8 +96,12 @@ public class AndroidLauncher extends AndroidApplication implements PlayServices{
 		initialize(new FloorIsLava(this), config);
 	}
 
-	public void startQuickGame() {
+	MenuState mState = null;
+
+	@Override
+	public void startQuickGame(MenuState mState) {
 		debugLog("Initiated quick game! ");
+		this.mState = mState;
 		// quick-start a game with 1 randomly selected opponent
 		final int MIN_OPPONENTS = 1, MAX_OPPONENTS = 1;
 		Bundle autoMatchCriteria = RoomConfig.createAutoMatchCriteria(MIN_OPPONENTS,
@@ -191,6 +195,8 @@ public class AndroidLauncher extends AndroidApplication implements PlayServices{
 			// start game! TODO fix this mess!
 			mPlaying = true;
 			debugLog("GAME SHOULD START!!!");
+			// TODO: This is a terrible solution!!!
+			this.mState.startGame();
 		}
 	}
 
@@ -494,32 +500,21 @@ public class AndroidLauncher extends AndroidApplication implements PlayServices{
 		super.onPause();
 	}
 
-	@Override
+
+	/*@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data)
 	{
 		super.onActivityResult(requestCode, resultCode, data);
 		// gameHelper.onActivityResult(requestCode, resultCode, data);
 	}
+	*/
 
 
 	@Override
 	public void signIn()
 	{
-		try
-		{
-			runOnUiThread(new Runnable()
-			{
-				@Override
-				public void run()
-				{
-					//gameHelper.beginUserInitiatedSignIn();
-				}
-			});
-		}
-		catch (Exception e)
-		{
-			Gdx.app.log("MainActivity", "Log in failed: " + e.getMessage() + ".");
-		}
+		debugLog("--- startSignInIntent()");
+		startSignInIntent();
 	}
 
 	@Override
@@ -547,10 +542,7 @@ public class AndroidLauncher extends AndroidApplication implements PlayServices{
 		return false;
 	}
 
-	@Override
-	public void startQuickGame(MenuState pstate) {
 
-	}
 
 	@Override
 	public void registerGameState(PlayState pstate) {
@@ -620,5 +612,34 @@ public class AndroidLauncher extends AndroidApplication implements PlayServices{
 				.setMessage(message + "\n" + errorString)
 				.setNeutralButton(android.R.string.ok, null)
 				.show();
+	}
+
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+
+		if (requestCode == RC_SIGN_IN) {
+
+			Task<GoogleSignInAccount> task =
+					GoogleSignIn.getSignedInAccountFromIntent(intent);
+
+			try {
+				GoogleSignInAccount account = task.getResult(ApiException.class);
+				onConnected(account);
+				debugLog("Manual login success");
+			} catch (ApiException apiException) {
+				String message = apiException.getMessage();
+				if (message == null || message.isEmpty()) {
+					message = getString(R.string.signin_other_error);
+				}
+
+				onDisconnected();
+
+				new AlertDialog.Builder(this)
+						.setMessage(message)
+						.setNeutralButton(android.R.string.ok, null)
+						.show();
+			}
+		}
+		super.onActivityResult(requestCode, resultCode, intent);
 	}
 }

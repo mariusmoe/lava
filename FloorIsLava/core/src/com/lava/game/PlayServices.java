@@ -11,7 +11,7 @@ public interface PlayServices {
     public void signIn();
     public void signOut();
     public boolean isSignedIn();
-    public void startQuickGame(MenuState pstate);
+    public void startQuickGame(MenuState mState);
     public void registerGameState(PlayState pstate);
     public void sendReliableMessage(byte[] message);
     public void sendUnreliableMessage(byte[] message);

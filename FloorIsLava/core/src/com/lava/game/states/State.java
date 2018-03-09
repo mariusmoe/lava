@@ -17,6 +17,8 @@ public abstract class State {
     protected State(GameStateManager gsm)   {
         this.gsm = gsm;
         cam = new OrthographicCamera();
+        cam.setToOrtho(false, 800, 480);
+        cam.update();
         mouse = new Vector3();
 
 

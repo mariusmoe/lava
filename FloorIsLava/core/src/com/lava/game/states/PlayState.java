@@ -8,10 +8,14 @@ import com.lava.game.FloorIsLava;
  */
 
 public class PlayState extends State {
-    protected PlayState(GameStateManager gsm) {
+    public static FloorIsLava game;
+    Boolean multiplayer;
 
+    protected PlayState(GameStateManager gsm, FloorIsLava game, Boolean multiplayer) {
         super(gsm);
-        cam.setToOrtho(false, FloorIsLava.WIDTH, FloorIsLava.HEIGHT);
+        this.game = game;
+        this.multiplayer = multiplayer;
+        //cam.setToOrtho(false, FloorIsLava.WIDTH, FloorIsLava.HEIGHT);
     }
 
     @Override
