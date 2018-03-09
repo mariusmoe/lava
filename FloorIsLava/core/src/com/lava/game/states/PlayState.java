@@ -1,160 +1,129 @@
 package com.lava.game.states;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-
-import com.badlogic.gdx.Gdx;
-
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.GL10;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.BitmapFont.TextBounds;
 
 
 /**
  * Created by moe on 08.03.18.
  */
 
-public class PlayState extends State {
-    protected PlayState(GameStateManager gsm) {
-        super(gsm);
-    }
+import com.badlogic.gdx.ApplicationListener;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.input.GestureDetector;
+import com.badlogic.gdx.input.GestureDetector.GestureListener;
+import com.badlogic.gdx.math.Vector2;
 
-
+public abstract class PlayState extends State implements ApplicationListener {
+    private Texture texture;
     private SpriteBatch batch;
-    private BitmapFont font;
-    private String message = "Touch something already!";
-    private int w, h;
+    private OrthographicCamera camera;
+    private CameraController controller;
 
-    class TouchInfo {
-        public float touchX = 0;
-        public float touchY = 0;
-        public boolean touched = false;
+    protected PlayState(GameStateManager gsm, Texture texture) {
+        super(gsm);
+        this.texture = texture;
     }
 
-    private Map<Integer, TouchInfo> touches = new HashMap<Integer, TouchInfo>();
+    class CameraController implements GestureListener {
+        float velX, velY;
+        boolean flinging = false;
+        float initialScale = 1;
 
+        public boolean touchDown (float x, float y, int pointer, int button) {
+            flinging = false;
+            initialScale = camera.zoom;
+            return false;
+        }
 
-    @Override
-    protected void handleInput() {
+        @Override
+        public boolean tap (float x, float y, int count, int button) {
+            Gdx.app.log("GestureDetectorTest", "tap at " + x + ", " + y + ", count: " + count);
+            return false;
+        }
 
+        @Override
+        public boolean longPress (float x, float y) {
+            Gdx.app.log("GestureDetectorTest", "long press at " + x + ", " + y);
+            return false;
+        }
+
+        @Override
+        public boolean fling (float velocityX, float velocityY, int button) {
+            Gdx.app.log("GestureDetectorTest", "fling " + velocityX + ", " + velocityY);
+            flinging = true;
+            velX = camera.zoom * velocityX * 0.5f;
+            velY = camera.zoom * velocityY * 0.5f;
+            return false;
+        }
+
+        @Override
+        public boolean pan (float x, float y, float deltaX, float deltaY) {
+            // Gdx.app.log("GestureDetectorTest", "pan at " + x + ", " + y);
+            camera.position.add(-deltaX * camera.zoom, deltaY * camera.zoom, 0);
+            return false;
+        }
+
+        @Override
+        public boolean panStop (float x, float y, int pointer, int button) {
+            Gdx.app.log("GestureDetectorTest", "pan stop at " + x + ", " + y);
+            return false;
+        }
+
+        @Override
+        public boolean zoom (float originalDistance, float currentDistance) {
+            float ratio = originalDistance / currentDistance;
+            camera.zoom = initialScale * ratio;
+            System.out.println(camera.zoom);
+            return false;
+        }
+
+        @Override
+        public boolean pinch (Vector2 initialFirstPointer, Vector2 initialSecondPointer, Vector2 firstPointer, Vector2 secondPointer) {
+            return false;
+        }
+
+        private void update () {
+            if (flinging) {
+                velX *= 0.98f;
+                velY *= 0.98f;
+                camera.position.add(-velX * Gdx.graphics.getDeltaTime(), velY * Gdx.graphics.getDeltaTime(), 0);
+                if (Math.abs(velX) < 0.01f) velX = 0;
+                if (Math.abs(velY) < 0.01f) velY = 0;
+            }
+        }
+
+        @Override
+        public void pinchStop () {
+        }
     }
 
     @Override
-    public void update(float dt) {
-
-    }
-
-    @Override
-    public void render(SpriteBatch sb) {
-
-    }
-
-    @Override
-    public void dispose() {
-
-    }
-
-    @Override
-    public void create() {
+    public void create () {
         batch = new SpriteBatch();
-        font = new BitmapFont();
-        font.setColor(Color.RED);
-        w = Gdx.graphics.getWidth();
-        h = Gdx.graphics.getHeight();
-        Gdx.input.setInputProcessor(this);
-        for (int i = 0; i < 5; i++) {
-            touches.put(i, new TouchInfo());
-        }
+        camera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        controller = new CameraController();
+        GestureDetector gestureDetector = new GestureDetector(20, 0.5f, 2, 0.15f, controller);
+        Gdx.input.setInputProcessor(gestureDetector);
     }
 
     @Override
-    public void dispose() {
-        batch.dispose();
-        font.dispose();
-    }
-
-    @Override
-    public void render() {
-        Gdx.gl.glClearColor(1, 1, 1, 1);
-        Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
-
+    public void render () {
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        controller.update();
+        camera.update();
+        batch.setProjectionMatrix(camera.combined);
         batch.begin();
-
-        message = "";
-        for (int i = 0; i < 5; i++) {
-            if (touches.get(i).touched)
-                message += "Finger:" + Integer.toString(i) + "touch at:" +
-                        Float.toString(touches.get(i).touchX) +
-                        "," +
-                        Float.toString(touches.get(i).touchY) +
-                        "\n";
-
-        }
-        TextBounds tb = font.getBounds(message);
-        float x = w / 2 - tb.width / 2;
-        float y = h / 2 + tb.height / 2;
-        font.drawMultiLine(batch, message, x, y);
-
+        batch.draw(texture, 0, 0, texture.getWidth() * 2, texture.getHeight() * 2);
         batch.end();
     }
 
     @Override
-    public void resize(int width, int height) {
+    public void dispose () {
+        texture.dispose();
+        batch.dispose();
     }
-
-    @Override
-    public void pause() {
-    }
-
-    @Override
-    public void resume() {
-    }
-
-    @Override
-    public boolean keyDown(int keycode) {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
-    @Override
-    public boolean keyUp(int keycode) {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
-    @Override
-    public boolean keyTyped(char character) {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
-    @Override
-    public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        if (pointer < 5) {
-            touches.get(pointer).touchX = screenX;
-            touches.get(pointer).touchY = screenY;
-            touches.get(pointer).touched = true;
-        }
-        return true;
-    }
-
-    @Override
-    public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-        if (pointer < 5) {
-            touches.get(pointer).touchX = 0;
-            touches.get(pointer).touchY = 0;
-            touches.get(pointer).touched = false;
-        }
-        return true;
-    }
-
-    @Override
-    public boolean touchDragged(int screenX, int screenY, int pointer) {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
 }
+
