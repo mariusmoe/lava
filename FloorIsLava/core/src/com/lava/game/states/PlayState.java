@@ -1,7 +1,10 @@
 package com.lava.game.states;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector3;
 import com.lava.game.sprites.Board;
 import com.lava.game.FloorIsLava;
 
@@ -11,6 +14,7 @@ import com.lava.game.FloorIsLava;
 
 public class PlayState extends State {
 
+
     private Board board;
     public static FloorIsLava game;
     Boolean multiplayer;
@@ -19,7 +23,7 @@ public class PlayState extends State {
         super(gsm);
         this.game = game;
         this.multiplayer = multiplayer;
-        this.board = new Board(10,20);
+        this.board = new Board(10,10);
         //cam.setToOrtho(false, FloorIsLava.WIDTH, FloorIsLava.HEIGHT);
     }
 
@@ -31,22 +35,19 @@ public class PlayState extends State {
     @Override
     public void update(float dt) {
         cam.update();
-
     }
 
     @Override
     public void render(SpriteBatch sb) {
         sb.begin();
-        /*
+
         for (int r = 0; r < board.getBoard().size(); r++) {
             for (int c = 0; c < board.getBoard().get(r).size(); c++) {
                 sb.draw(board.getBoard().get(r).get(c).getTexture(),
-                        board.getBoard().get(r).get(c).getxPos()*16,
-                        board.getBoard().get(r).get(c).getyPos()*16,
-                        16,
-                        16);
+                        board.getBoard().get(r).get(c).getxPos(),
+                        board.getBoard().get(r).get(c).getyPos());
             }
-        }*/
+        }
         sb.end();
     }
 

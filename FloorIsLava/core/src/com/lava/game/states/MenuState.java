@@ -65,6 +65,7 @@ public class MenuState extends State {
             Rectangle textureBounds=new Rectangle(400, 40,140,40);
             if (textureBounds.contains(tmp2.x,tmp2.y)){
                 // single player
+                Gdx.gl.glClearColor(0, 0, 1, 1);
                 gsm.set(new PlayState(gsm, game, false));
                 dispose();
             }

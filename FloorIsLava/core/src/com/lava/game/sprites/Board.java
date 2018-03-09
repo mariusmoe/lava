@@ -15,7 +15,9 @@ public class Board {
     private ArrayList<ArrayList<Tile>> board;
 
     public Board(int nTilesX, int nTilesY) {
+        board = new ArrayList<ArrayList<Tile>>();
         for (int y = 0; y < nTilesY; y++) {
+            board.add(new ArrayList<Tile>());
             for (int x = 0; x < nTilesX; x++) {
                 board.get(y).add(new Tile(this, x, y));
             }
