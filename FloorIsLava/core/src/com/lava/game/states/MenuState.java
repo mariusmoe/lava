@@ -45,7 +45,7 @@ public class MenuState extends State {
         if(Gdx.input.justTouched()){
             Vector3 tmp1 = new Vector3();
             cam.unproject(tmp1.set(Gdx.input.getX(),Gdx.input.getY(),0));
-            Rectangle textureBounds=new Rectangle(220, 40,140,40);
+            Rectangle textureBounds=new Rectangle(FloorIsLava.WIDTH/2-70, 40,140,40);
             if (textureBounds.contains(tmp1.x,tmp1.y)){
                 game.playServices.signIn();
                 //dispose();
@@ -54,7 +54,7 @@ public class MenuState extends State {
         if(Gdx.input.justTouched()){
             Vector3 tmp2 = new Vector3();
             cam.unproject(tmp2.set(Gdx.input.getX(),Gdx.input.getY(),0));
-            Rectangle textureBounds=new Rectangle(400, 40,140,40);
+            Rectangle textureBounds=new Rectangle(FloorIsLava.WIDTH/2-70, 140,140,40);
             if (textureBounds.contains(tmp2.x,tmp2.y)){
                 // single player
                 gsm.set(new PlayState(gsm, game, false));
@@ -64,7 +64,7 @@ public class MenuState extends State {
         if(Gdx.input.justTouched()){
             Vector3 tmp3 = new Vector3();
             cam.unproject(tmp3.set(Gdx.input.getX(),Gdx.input.getY(),0));
-            Rectangle textureBounds=new Rectangle(580, 40,140,40);
+            Rectangle textureBounds=new Rectangle(FloorIsLava.WIDTH/2-70, 240,140,40);
             if (textureBounds.contains(tmp3.x,tmp3.y)){
                 // multiplayer
                 game.playServices.startQuickGame(this);
@@ -83,9 +83,9 @@ public class MenuState extends State {
     public void render(SpriteBatch sb) {
         sb.begin();
         sb.setProjectionMatrix(cam.combined);
-        sb.draw(signIn, 220,40, 140, 40);
-        sb.draw(singlePlayer, 400,40, 140, 40);
-        sb.draw(playMultiplayer, 580,40, 140, 40);
+        sb.draw(signIn, FloorIsLava.WIDTH/2-70,40, 140, 40);
+        sb.draw(singlePlayer, FloorIsLava.WIDTH/2-70,140, 140, 40);
+        sb.draw(playMultiplayer, FloorIsLava.WIDTH/2-70,240, 140, 40);
         sb.end();
     }
 
