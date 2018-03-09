@@ -1,6 +1,7 @@
 package com.lava.game.sprites;
 
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 import java.lang.reflect.Array;
 
@@ -74,5 +75,10 @@ public class Tile {
         return texture;
     }
 
+    public void render(SpriteBatch sb) {
+        sb.begin();
+        sb.draw(texture,xPos*16,yPos*16);
+        sb.end();
+    }
 
 }
