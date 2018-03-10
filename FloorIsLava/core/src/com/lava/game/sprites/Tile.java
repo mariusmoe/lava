@@ -19,6 +19,8 @@ public class Tile {
 
     private Board board;
     private Texture texture;
+    public static int WIDTH = 16;
+    public static int HEIGHT = 16;
 
     private int hp;
     private int xPos;
@@ -43,7 +45,7 @@ public class Tile {
         return hp;
     }
 
-    public int[] getpos() {
+    public int[] getPos() {
         int [] res = new int[2];
         res[1] = xPos;
         res[2] = yPos;
@@ -61,44 +63,24 @@ public class Tile {
     /* If this method is called the tile will deteriorate */
     public void deteriorate() {
         int deterioration = halfLife * deteriorationValue;
-        if (hp <= deterioration) {
+        /*if (hp <= deterioration) {
             board.dispose(this);
-        } else {
+        } else {*/
             hp -= deterioration;
             if (hp <= 75 && hp > 50) {
-                texture = new Texture("TilaA.png");
+                texture = new Texture("TileA.png");
             } else if (hp <= 50 && hp > 25) {
-                texture = new Texture("TilaA2.png");
+                texture = new Texture("TileA2.png");
             } else if (hp <= 25 && hp > 0) {
-                texture = new Texture("TilaA4.png");
+                texture = new Texture("TileA4.png");
+            } else if (hp < 0) {
+                texture = new Texture("TileA6.png");
             }
         }
-    }
+    //}
 
     public Texture getTexture() {
         return texture;
     }
-
-    /*
-    public void render(SpriteBatch sb) {
-        sb.begin();
-        sb.draw(texture,xPos*16,yPos*16);
-        sb.end();
-    }*/
-
-    /*
-    public void update(float dt) {
-        if(Gdx.input.justTouched()){
-            Vector3 tmp2 = new Vector3();
-            cam.unproject(tmp2.set(Gdx.input.getX(),Gdx.input.getY(),0));
-            Rectangle textureBounds=new Rectangle(400, 40,140,40);
-            if (textureBounds.contains(tmp2.x,tmp2.y)){
-                // single player
-                Gdx.gl.glClearColor(0, 0, 1, 1);
-                gsm.set(new PlayState(gsm, game, false));
-                dispose();
-            }
-        }
-    }*/
 
 }

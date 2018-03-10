@@ -30,7 +30,7 @@ public class Board {
 
     public void dispose(Tile tile) {
         int index = board.indexOf(tile);
-        board.remove(index);
+        //board.remove(index);
     }
 
 }
