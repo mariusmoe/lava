@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.lava.game.states.GameStateManager;
 import com.lava.game.states.MenuState;
+import com.lava.game.utils.SimpleDirectionGestureDetector;
 
 public class FloorIsLava extends ApplicationAdapter {
 	public static final int WIDTH = 480;
@@ -31,6 +32,8 @@ public class FloorIsLava extends ApplicationAdapter {
 		Gdx.gl.glClearColor(1, 0, 0, 1);
 		// gsm.push(new MenuState(gsm, this));
 		gsm.push(new MenuState(gsm, this));
+
+
 	}
 
 	@Override
@@ -44,4 +47,7 @@ public class FloorIsLava extends ApplicationAdapter {
 	public void dispose () {
 		batch.dispose();
 	}
+
+
+
 }

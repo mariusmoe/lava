@@ -46,9 +46,9 @@ public class Tile {
     }
 
     public int[] getPos() {
-        int [] res = new int[2];
-        res[1] = xPos;
-        res[2] = yPos;
+        int [] res = new int[1];
+        res[0] = xPos;
+        res[1] = yPos;
         return res;
     }
 
@@ -68,6 +68,7 @@ public class Tile {
         } else {*/
             hp -= deterioration;
             if (hp <= 75 && hp > 50) {
+                //texture.dispose();
                 texture = new Texture("TileA.png");
             } else if (hp <= 50 && hp > 25) {
                 texture = new Texture("TileA2.png");
@@ -83,4 +84,7 @@ public class Tile {
         return texture;
     }
 
+    public void dispose() {
+        texture.dispose();
+    }
 }

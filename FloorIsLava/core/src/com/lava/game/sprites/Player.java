@@ -2,6 +2,7 @@ package com.lava.game.sprites;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.lava.game.FloorIsLava;
+import com.lava.game.states.PlayState;
 
 import static com.badlogic.gdx.math.MathUtils.random;
 
@@ -15,7 +16,9 @@ public class Player {
     private int yPos;
     private Texture texture;
     private Direction dir;
-    private static final int MOVEMENT = 16;
+    private static final int MOVEMENT = 5;
+
+
 
     private enum Direction {
         NORTH, EAST, SOUTH, WEST
@@ -44,28 +47,28 @@ public class Player {
 
     public void update() {
         if (dir == Direction.NORTH){
-            if (yPos - (texture.getHeight()/2) >= FloorIsLava.HEIGHT) {
+            if ((yPos + MOVEMENT) + (texture.getHeight()) >= PlayState.Y_TILES * 48 + PlayState.CUTOFF_BOTTOM) {
                 dir = Direction.SOUTH;
                 yPos -= MOVEMENT;
             } else {
                 yPos += MOVEMENT;
             }
         } else if (dir == Direction.EAST) {
-            if (xPos - (texture.getWidth()/2) >= FloorIsLava.WIDTH) {
+            if (xPos + (texture.getWidth()) >= FloorIsLava.WIDTH) {
                 dir = Direction.WEST;
                 xPos -= MOVEMENT;
             } else {
                 xPos += MOVEMENT;
             }
         } else if (dir == Direction.SOUTH) {
-            if (yPos + (texture.getHeight()/2) <= 0) {
+            if ((yPos - MOVEMENT) + (texture.getHeight()/2) <= PlayState.CUTOFF_BOTTOM) {
                 dir = Direction.NORTH;
                 yPos += MOVEMENT;
             } else {
                 yPos -= MOVEMENT;
             }
         } else if (dir == Direction.WEST) {
-            if (xPos + (texture.getWidth()/2) <= 0) {
+            if (xPos + (texture.getWidth()) <= 0) {
                 dir = Direction.EAST;
                 xPos += MOVEMENT;
             } else {
@@ -74,6 +77,14 @@ public class Player {
         }
 
     }
+
+    public void turnUp() { dir = Direction.NORTH; }
+
+    public void turnRight() { dir = Direction.EAST; }
+
+    public void turnLeft() { dir = Direction.WEST; }
+
+    public void turnDown() { dir = Direction.SOUTH; }
 
     public Texture getTexture() {
         return texture;

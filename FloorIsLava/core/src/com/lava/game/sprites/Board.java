@@ -29,8 +29,12 @@ public class Board {
     }
 
     public void dispose(Tile tile) {
-        int index = board.indexOf(tile);
-        //board.remove(index);
+        for (int r = 0; r < board.size(); r++) {
+            for (int c = 0; c < board.get(r).size(); c++) {
+                board.get(r).get(c).dispose();
+            }
+        }
     }
+
 
 }
