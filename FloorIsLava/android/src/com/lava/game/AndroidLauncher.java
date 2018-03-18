@@ -37,6 +37,7 @@ import com.lava.game.states.MenuState;
 import com.lava.game.states.PlayState;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -51,7 +52,7 @@ public class AndroidLauncher extends AndroidApplication implements PlayServices{
 
 	private final static int requestCode = 1;
 	private GoogleSignInClient mGoogleSignInClient = null;
-	static final String TAG = "GameHelper";
+	static final String TAG = "LavaHelper";
 	// Holds the configuration of the current room.
 	RoomConfig mRoomConfig;
 	// Room ID where the currently active game is taking place; null if we're
@@ -83,6 +84,8 @@ public class AndroidLauncher extends AndroidApplication implements PlayServices{
 
 	// Message buffer for sending messages
 	byte[] mMsgBuf = new byte[2];
+
+	PlayState playState;
 
 	@Override
 	protected void onCreate (Bundle savedInstanceState) {
@@ -218,35 +221,30 @@ public class AndroidLauncher extends AndroidApplication implements PlayServices{
 	// There is also the
 	// 'S' message, which indicates that the game should start.
 	OnRealTimeMessageReceivedListener mOnRealTimeMessageReceivedListener = new OnRealTimeMessageReceivedListener() {
+		public int serialNumber = -1;
+
 		@Override
 		public void onRealTimeMessageReceived(@NonNull RealTimeMessage realTimeMessage) {
 			byte[] buf = realTimeMessage.getMessageData();
 			String sender = realTimeMessage.getSenderParticipantId();
 			Log.d(TAG, "Message received: " + (char) buf[0] + "/" + (int) buf[1]);
 
-			if (buf[0] == 'F' || buf[0] == 'U') {
-				// score update.
-				int existingScore = mParticipantScore.containsKey(sender) ?
-						mParticipantScore.get(sender) : 0;
-				int thisScore = (int) buf[1];
+			if (buf[0] == 'P') {
+				int serialNumber = byteArrayToInt(Arrays.copyOfRange(buf,1,5));
+				if (serialNumber > this.serialNumber){
+					int xPos 		 = byteArrayToInt(Arrays.copyOfRange(buf,5,9));
+					int yPos 		 = byteArrayToInt(Arrays.copyOfRange(buf,9,13));
 
-				// this check is necessary because packets may arrive out of
-				// order, so we
-				// should only ever consider the highest score we received, as
-				// we know in our
-				// game there is no way to lose points. If there was a way to
-				// lose points,
-				// we'd have to add a "serial number" to the packet.
-				mParticipantScore.put(sender, thisScore);
+					playState.receivePosition(xPos,yPos);
 
+					this.serialNumber = serialNumber;
+				}
 
-				// update the scores on the screen
-				//updatePeerScoresDisplay();
-
-				// if it's a final score, mark this participant as having finished
-				// the game
-				if ((char) buf[0] == 'F') {
-					mFinishedParticipants.add(realTimeMessage.getSenderParticipantId());
+				// If it is damage to a tile call PlayState
+				if ((char) buf[0] == 'D') {
+					int tileX = byteArrayToInt(Arrays.copyOfRange(buf,1,5));
+					int tileY = byteArrayToInt(Arrays.copyOfRange(buf,5,9));
+					playState.receiveDamageToTile(tileX,tileY);
 				}
 			}
 		}
@@ -546,17 +544,44 @@ public class AndroidLauncher extends AndroidApplication implements PlayServices{
 
 	@Override
 	public void registerGameState(PlayState pstate) {
-
+		this.playState = pstate;
 	}
 
 	@Override
 	public void sendReliableMessage(byte[] message) {
+		for (Participant p : mParticipants) {
+			if (p.getParticipantId().equals(mMyId)) {
+				continue;
+			}
 
+		mRealTimeMultiplayerClient.sendReliableMessage(message,
+				mRoomId, p.getParticipantId(), new RealTimeMultiplayerClient.ReliableMessageSentCallback() {
+					@Override
+					public void onRealTimeMessageSent(int statusCode, int tokenId, String recipientParticipantId) {
+						Log.d(TAG, "RealTime message sent");
+						Log.d(TAG, "  statusCode: " + statusCode);
+						Log.d(TAG, "  tokenId: " + tokenId);
+						Log.d(TAG, "  recipientParticipantId: " + recipientParticipantId);
+					}
+				})
+				.addOnSuccessListener(new OnSuccessListener<Integer>() {
+					@Override
+					public void onSuccess(Integer tokenId) {
+						Log.d(TAG, "Created a reliable message with tokenId: " + tokenId);
+					}
+				});
+		}
 	}
 
 	@Override
 	public void sendUnreliableMessage(byte[] message) {
-
+		for (Participant p : mParticipants) {
+			if (p.getParticipantId().equals(mMyId)) {
+				continue;
+			}
+			mRealTimeMultiplayerClient.sendUnreliableMessage(message, mRoomId,
+					p.getParticipantId());
+		}
 	}
 
 	/**
@@ -641,5 +666,9 @@ public class AndroidLauncher extends AndroidApplication implements PlayServices{
 			}
 		}
 		super.onActivityResult(requestCode, resultCode, intent);
+	}
+
+	public static int byteArrayToInt(byte[] b) {
+		return (b[3] & 0xFF) + ((b[2] & 0xFF) << 8) + ((b[1] & 0xFF) << 16) + ((b[0] & 0xFF) << 24);
 	}
 }

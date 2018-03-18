@@ -16,8 +16,12 @@ public class Player {
     private int yPos;
     private Texture texture;
     private Direction dir;
-    private static final int MOVEMENT = 5;
+    private static final int MOVEMENT = 4;
 
+    public void setPos(int xPos, int yPos) {
+        this.xPos = xPos;
+        this.yPos = yPos;
+    }
 
 
     private enum Direction {
@@ -96,5 +100,9 @@ public class Player {
 
     public int getyPos() {
         return yPos;
+    }
+
+    public void dispose() {
+        texture.dispose();
     }
 }

@@ -28,7 +28,7 @@ public class Board {
         return board;
     }
 
-    public void dispose(Tile tile) {
+    public void dispose() {
         for (int r = 0; r < board.size(); r++) {
             for (int c = 0; c < board.get(r).size(); c++) {
                 board.get(r).get(c).dispose();
