@@ -17,12 +17,12 @@ import static com.badlogic.gdx.math.MathUtils.random;
 
 public class Tile {
 
-    private Board board;
+    private Board board;    // Is board needed?
     private Texture texture;
-    public static int WIDTH = 16;
-    public static int HEIGHT = 16;
+    public static int WIDTH = 16;   // Overridden by the draw method in playState
+    public static int HEIGHT = 16;  // Overridden by the draw method in playState
 
-    private int hp;
+    private int hp = 100;
     private int xPos;
     private int yPos;
     private int halfLife;
@@ -31,7 +31,6 @@ public class Tile {
     public Tile(Board board, int xPos, int yPos) {
         this.board = board;
         this.halfLife = random(1,5);
-        this.hp = 100;
         this.xPos = xPos;
         this.yPos = yPos;
         this.texture = new Texture("TileA.png");
@@ -52,10 +51,10 @@ public class Tile {
         return res;
     }
 
+    // What are these for?
     public int getxPos() {
         return xPos;
     }
-
     public int getyPos() {
         return yPos;
     }

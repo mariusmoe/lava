@@ -29,8 +29,10 @@ public class FloorIsLava extends ApplicationAdapter {
 	public void create () {
 		batch = new SpriteBatch();
 		gsm = new GameStateManager();
+
+		// Set background color
 		Gdx.gl.glClearColor(1, 0, 0, 1);
-		// gsm.push(new MenuState(gsm, this));
+
 		gsm.push(new MenuState(gsm, this));
 
 

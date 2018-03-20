@@ -23,11 +23,9 @@ public class MenuState extends State {
     public MenuState(GameStateManager gsm, FloorIsLava game) {
         super(gsm);
         this.game = game;
-        Gdx.gl.glClearColor(1, 0, 0, 1);
 
-        //Gdx.graphics.setWindowedMode(FloorIsLava.WIDTH, FloorIsLava.HEIGHT);
-        //cam.setToOrtho(false, FloorIsLava.WIDTH, FloorIsLava.HEIGHT);
-        //cam.update();
+        // Again set the background color, why?
+        Gdx.gl.glClearColor(1, 0, 0, 1);
 
         signIn = new Texture("button_task_1.png");
         singlePlayer = new Texture("button_task_2.png");
@@ -36,27 +34,22 @@ public class MenuState extends State {
 
     @Override
     protected void handleInput() {
-        /*if(Gdx.input.justTouched()) {
-            tmp = new Vector3( Gdx.input.getX(), Gdx.input.getY(),0);
-            cam.unproject(tmp);
-            Rectangle textureBounds = new Rectangle((FloorIsLava.WIDTH/2) - (singlePlayer.getWidth()/2), FloorIsLava.HEIGHT / 2 + 160, singlePlayer.getWidth(), singlePlayer.getHeight());
-            if(textureBounds.contains(tmp.x,tmp.y)) {
-                gsm.set(new PlayState(gsm));
-            }
-        }*/
+
     }
 
 
     @Override
     public void update(float dt) {
         cam.update();
+
+        // TODO: Clean up these buttons, maybe use a scene?
+        // TODO: move to handleInput?
         if(Gdx.input.justTouched()){
             Vector3 tmp1 = new Vector3();
             cam.unproject(tmp1.set(Gdx.input.getX(),Gdx.input.getY(),0));
             Rectangle textureBounds=new Rectangle(FloorIsLava.WIDTH/2-70, 40,140,40);
             if (textureBounds.contains(tmp1.x,tmp1.y)){
                 game.playServices.signIn();
-                //dispose();
             }
         }
         if(Gdx.input.justTouched()){
@@ -90,14 +83,6 @@ public class MenuState extends State {
 
     @Override
     public void render(SpriteBatch sb) {
-        //sb.begin();
-        //sb.setProjectionMatrix(cam.combined);
-        //Gdx.graphics.setWindowedMode(FloorIsLava.WIDTH, FloorIsLava.HEIGHT);
-        //cam.setToOrtho(false, FloorIsLava.WIDTH/2, FloorIsLava.HEIGHT / 2);
-        //cam.update();
-        //sb.draw(singlePlayer, (FloorIsLava.WIDTH/2) - (singlePlayer.getWidth()/2), FloorIsLava.HEIGHT / 2 + 160);
-        //sb.draw(multiplayer, (FloorIsLava.WIDTH/2) - (multiplayer.getWidth()/2), FloorIsLava.HEIGHT / 2 - 160);
-        //sb.end();
         sb.begin();
         sb.setProjectionMatrix(cam.combined);
         sb.draw(signIn, FloorIsLava.WIDTH/2-70,40, 140, 40);

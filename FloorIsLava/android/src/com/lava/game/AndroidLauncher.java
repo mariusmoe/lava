@@ -52,11 +52,11 @@ public class AndroidLauncher extends AndroidApplication implements PlayServices{
 
 	private final static int requestCode = 1;
 	private GoogleSignInClient mGoogleSignInClient = null;
+	// Debug tag
 	static final String TAG = "LavaHelper";
 	// Holds the configuration of the current room.
 	RoomConfig mRoomConfig;
-	// Room ID where the currently active game is taking place; null if we're
-	// not playing.
+	// Room ID where the currently active game is taking place; null if we're not playing.
 	String mRoomId = null;
 	// Are we playing in multiplayer mode?
 	boolean mMultiplayer = false;
@@ -161,6 +161,7 @@ public class AndroidLauncher extends AndroidApplication implements PlayServices{
 			updateRoom(room);
 		}
 
+		// Called when this player has joined the room
 		@Override
 		public void onJoinedRoom(int statusCode, Room room) {
 			debugLog("onJoinedRoom(" + statusCode + ", " + room + ")");
@@ -214,12 +215,7 @@ public class AndroidLauncher extends AndroidApplication implements PlayServices{
 		return connectedPlayers >= MIN_PLAYERS;
 	}
 
-	// Called when we receive a real-time message from the network.
-	// Messages in our game are made up of 2 bytes: the first one is 'F' or 'U'
-	// indicating
-	// whether it's a final or interim score. The second byte is the score.
-	// There is also the
-	// 'S' message, which indicates that the game should start.
+
 	OnRealTimeMessageReceivedListener mOnRealTimeMessageReceivedListener = new OnRealTimeMessageReceivedListener() {
 		public int serialNumber = -1;
 
@@ -229,6 +225,7 @@ public class AndroidLauncher extends AndroidApplication implements PlayServices{
 			String sender = realTimeMessage.getSenderParticipantId();
 			Log.d(TAG, "Message received: " + (char) buf[0] + "/" + (int) buf[1]);
 
+			// If the message is an unreliable position update
 			if (buf[0] == 'P') {
 				int serialNumber = byteArrayToInt(Arrays.copyOfRange(buf,1,5));
 				if (serialNumber > this.serialNumber){
@@ -240,14 +237,14 @@ public class AndroidLauncher extends AndroidApplication implements PlayServices{
 					this.serialNumber = serialNumber;
 				}
 
-				// If it is damage to a tile call PlayState
-				if ((char) buf[0] == 'D') {
-					int tileX = byteArrayToInt(Arrays.copyOfRange(buf,1,5));
-					int tileY = byteArrayToInt(Arrays.copyOfRange(buf,5,9));
-					playState.receiveDamageToTile(tileX,tileY);
-				}
 			}
-		}
+            // If it is damage to a tile call PlayState
+            if ((char) buf[0] == 'D') {
+                int tileX = byteArrayToInt(Arrays.copyOfRange(buf,1,5));
+                int tileY = byteArrayToInt(Arrays.copyOfRange(buf,5,9));
+                playState.receiveDamageToTile(tileX,tileY);
+            }
+        }
 	};
 
 	private RoomStatusUpdateCallback mRoomStatusUpdateCallback = new RoomStatusUpdateCallback() {
@@ -441,7 +438,8 @@ public class AndroidLauncher extends AndroidApplication implements PlayServices{
 	}
 
 	// Leave the room.
-	void leaveRoom() {
+    @Override
+    public void leaveRoom() {
 		Log.d(TAG, "Leaving room.");
 		//mSecondsLeft = 0;
 		//stopKeepingScreenOn();

@@ -55,6 +55,7 @@ public class Player {
     }
 
     public void update() {
+        // TODO: there are some errors her :o
         if (dir == Direction.NORTH){
             if ((yPos + MOVEMENT) + (texture.getHeight()) >= PlayState.Y_TILES * 48 + PlayState.CUTOFF_BOTTOM) {
                 dir = Direction.SOUTH;
