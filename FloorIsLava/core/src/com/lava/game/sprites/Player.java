@@ -12,12 +12,17 @@ import static com.badlogic.gdx.math.MathUtils.random;
 
 public class Player {
 
-    private int xPos;
-    private int yPos;
+    private int xPos;   // x position of the player
+    private int yPos;   // y position of the player
     private Texture texture;
-    private Direction dir;
+    private Direction dir;  // the direction the player is facing
     private static final int MOVEMENT = 4;
 
+    /**
+     * Directly set the position of the player, should only be used for playerTwo
+     * @param xPos  x position of the player
+     * @param yPos  y position of the player
+     */
     public void setPos(int xPos, int yPos) {
         this.xPos = xPos;
         this.yPos = yPos;

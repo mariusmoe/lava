@@ -14,6 +14,11 @@ public class Board {
 
     private ArrayList<ArrayList<Tile>> board;
 
+    /**
+     * Create a board with given size
+     * @param nTilesX
+     * @param nTilesY
+     */
     public Board(int nTilesX, int nTilesY) {
         board = new ArrayList<ArrayList<Tile>>();
         for (int y = 0; y < nTilesY; y++) {
@@ -24,10 +29,19 @@ public class Board {
         }
     }
 
+    /**
+     * Return's the board
+     *
+     * To get a tile, use: board.getBoard().get((yCoordinate).get(xCoordinate)
+     * @return board
+     */
     public ArrayList<ArrayList<Tile>> getBoard() {
         return board;
     }
 
+    /**
+     * Dispose of all tiles in the board
+     */
     public void dispose() {
         for (int r = 0; r < board.size(); r++) {
             for (int c = 0; c < board.get(r).size(); c++) {

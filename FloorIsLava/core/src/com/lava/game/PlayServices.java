@@ -14,5 +14,15 @@ public interface PlayServices {
     public void startQuickGame(MenuState mState);
     public void registerGameState(PlayState pstate);
     public void sendReliableMessage(byte[] message);
+
+    /**
+     * Send a unreliable message to all participants in the current game session
+     * @param message	A byte array consisting of the following:
+     *                  0: 		The letters P or D for Position or Damage, respectively encoded as a
+     *                 			byte
+     *                  1-5:	Integer serial number encoded as four bytes
+     *                  5-9:	Integer xPos encoded as four bytes
+     *                  9-13:	Integer yPos encoded as for bytes
+     */
     public void sendUnreliableMessage(byte[] message);
 }

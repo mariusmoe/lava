@@ -30,17 +30,26 @@ public class PlayState extends State {
     public static int CUTOFF_BOTTOM = 80;
     public static String TAG = "LavaGame";
 
-    private float collector = 0;
-    private float tickCollector = 0;
+    // Collectors are used for accumulating delta time, to enable actions that only execute after
+    // a given time period has passed
+    private float collector = 0;        // collector used for deterioration of tiles
+    private float tickCollector = 0;    // multiplayer tick collector
 
     private Player playerOne;
     private Player playerTwo;
     private int threshold = 20;
-    private float interpolation_constant = 0.5f;
+    private float interpolation_constant = 0.5f;    // How fast the interpolation will happen
 
     Boolean multiplayer;
-    private int serialNumber = 0;
+    private int serialNumber = 0;       // multiplayer packets can arrive out of order and are given
+                                        // a serial number
 
+    /**
+     * Construct a new play state
+     * @param gsm   game state manage
+     * @param game  reference to the floor is lava (to reach multiplayer methods)
+     * @param multiplayer   true if multiplayer, false if singleplayer
+     */
     protected PlayState(GameStateManager gsm, FloorIsLava game, Boolean multiplayer) {
         super(gsm);
         this.game = game;
@@ -53,32 +62,29 @@ public class PlayState extends State {
             game.playServices.registerGameState(this);
         }
 
+        // Let gdx handle swipes in a separate thread
         Gdx.input.setInputProcessor(new SimpleDirectionGestureDetector(new SimpleDirectionGestureDetector.DirectionListener() {
 
             @Override
             public void onUp() {
-                // TODO Auto-generated method stub
                 Gdx.app.log(TAG,"MAgic - swiped up");
                 playerOne.turnUp();
             }
 
             @Override
             public void onRight() {
-                // TODO Auto-generated method stub
                 Gdx.app.log(TAG,"MAgic - swiped right");
                 playerOne.turnRight();
             }
 
             @Override
             public void onLeft() {
-                // TODO Auto-generated method stub
                 Gdx.app.log(TAG,"MAgic - swiped left");
                 playerOne.turnLeft();
             }
 
             @Override
             public void onDown() {
-                // TODO Auto-generated method stub
                 Gdx.app.log(TAG,"MAgic - swiped down");
                 playerOne.turnDown();
             }
@@ -96,24 +102,28 @@ public class PlayState extends State {
 
     @Override
     public void update(float dt) {
-        cam.update();
+        cam.update();   // Is this necessary?
         playerOne.update();
         handleInput();
         //Gdx.app.log("LavaGame","xPos: " + player.getxPos() + " yPos: " + player.getyPos());
-        // TODO: check if in lava => dead
+
+        // Check if in lava => dead
         if (board.getBoard().get(((playerOne.getyPos()-CUTOFF_BOTTOM-10)/48)).get((playerOne.getxPos()/48)).getHp() == 0) {
             Gdx.app.log(TAG,"Player died! abort game now...");
+            // TODO: Kill the player
             // TODO: send death message if multiplayer
 
         }
 
-        // Check if one second has passed
         board.getBoard().get(((playerOne.getyPos()-CUTOFF_BOTTOM)/48)).get((playerOne.getxPos()/48)).deteriorate();
+        // TODO: Decrease time for deterioration of tile
+        //       This has to be small enough to be able to send it reliably in multiplayer, but also
+        //       fas enough for the user to understand that walking over a tile deteriorate it
         if (collector >= 1){
             // Doo something every second
-            Gdx.app.log("LavaGame","xPos: " + playerOne.getxPos() + " yPos: " + playerOne.getyPos() +" ----- ");
-            Gdx.app.log("LavaGame","xPos: " + playerOne.getxPos()/48 + " yPos: " + (playerOne.getyPos()-CUTOFF_BOTTOM)/48 +" ----- ");
-            Gdx.app.log("LavaGame"," size: "+board.getBoard().size());
+            Gdx.app.log(TAG,"xPos: " + playerOne.getxPos() + " yPos: " + playerOne.getyPos() +" ----- ");
+            Gdx.app.log(TAG,"xPos: " + playerOne.getxPos()/48 + " yPos: " + (playerOne.getyPos()-CUTOFF_BOTTOM)/48 +" ----- ");
+            Gdx.app.log(TAG," size: "+board.getBoard().size());
 
             board.getBoard().get(((playerOne.getyPos()-CUTOFF_BOTTOM-10)/48))
                             .get((playerOne.getxPos()/48))
@@ -129,10 +139,11 @@ public class PlayState extends State {
             collector += dt;
         }
 
-        // TODO: add multiplayer stuff here
+        // Multiplayer stuff here
         if (multiplayer){
             if (tickCollector >= 0.33) {
                 // TODO: broadcast position
+                // Build byte array
                 byte    pos  = (byte) 'P';
                 byte[]  serialNumberByte = intToByteArray(serialNumber);
                 byte[]  xPos = intToByteArray(playerOne.getxPos());
@@ -142,7 +153,7 @@ public class PlayState extends State {
                 // TODO: clean up this code!
                 for (int i = 1; i < message.length; ++i) {
                     if (i < xPos.length) {
-                        message[i] = xPos[i]
+                        message[i] = xPos[i];
                     }
                     else {
                         if (i < (xPos.length + yPos.length)){
