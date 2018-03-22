@@ -14,6 +14,8 @@ public class Player {
 
     private int xPos;   // x position of the player
     private int yPos;   // y position of the player
+    private int receivedXPos;
+    private int receivedYPos;
     private Texture texture;
     private Direction dir;  // the direction the player is facing
     private static final int MOVEMENT = 4;
@@ -28,6 +30,19 @@ public class Player {
         this.xPos = xPos;
         this.yPos = yPos;
     }
+
+    /**
+     * Directly set the received position of the player, should only be used for playerTwo
+     * @param X  received x position of the player
+     * @param Y  received y position of the player
+     */
+    public void setReceivedPos(int X, int Y) {
+        receivedXPos = X;
+        receivedYPos = Y;
+    }
+
+    public int getReceivedXPos() {return receivedXPos;}
+    public int getReceivedYPos() {return receivedYPos;}
 
 
     private enum Direction {

@@ -5,6 +5,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector3;
 import com.lava.game.sprites.Board;
@@ -41,12 +42,13 @@ public class PlayState extends State {
 
     private Player playerOne;
     private Player playerTwo;
-    private int threshold = 20;     // Number of px before interpolating
-    private float interpolation_constant = 0.5f;    // How fast the interpolation will happen
+    private int threshold = 2;     // Number of px before interpolating
+    private float interpolation_constant = (float) 5;    // How fast the interpolation will happen
 
     private Boolean multiplayer;
     private int serialNumber = 0;       // multiplayer packets can arrive out of order and are given
-                                        // a serial number
+    private boolean canInterpolate = false;
+    // a serial number
 
     /**
      * Construct a new play state
@@ -128,12 +130,13 @@ public class PlayState extends State {
         //       fas enough for the user to understand that walking over a tile deteriorate it
         if (collector >= 1){
             // Doo something every second
-            Gdx.app.log(TAG,"xPos: " + playerOne.getxPos() +
+            /*Gdx.app.log(TAG,"xPos: " + playerOne.getxPos() +
                             " yPos: " + playerOne.getyPos() +" --- " +
                             (((playerOne.getyPos() - CUTOFF_BOTTOM) + (PLAYER_HEIGHT/2))/
                              TILE_SIZE) + " : " +
                             ((playerOne.getxPos() +
                               (PLAYER_WIDTH/2))/TILE_SIZE));
+                              */
 
 
             board.getBoard().get((((playerOne.getyPos() - CUTOFF_BOTTOM) + (PLAYER_HEIGHT/2))/
@@ -154,9 +157,13 @@ public class PlayState extends State {
 
         // Multiplayer stuff here
         if (multiplayer){
-            if (tickCollector >= 0.33) {
+            if (canInterpolate){
+                interpolate(dt, playerTwo.getxPos(), playerTwo.getyPos());
+            }
+
+            if (tickCollector >= 0.033) {
                 // Build byte array
-                Gdx.app.log(TAG," Building byte array: ");
+                //Gdx.app.log(TAG," Building byte array: ");
 
                 byte    pos  = (byte) 'P';
                 byte[]  serialNumberByte = intToByteArray(serialNumber);
@@ -177,7 +184,7 @@ public class PlayState extends State {
                         }
 
                 }
-                Gdx.app.log(TAG," Building byte array: " + Arrays.toString(message));
+                //Gdx.app.log(TAG," Building byte array: " + Arrays.toString(message));
                 serialNumber++;
                 tickCollector = 0;
                 game.playServices.sendUnreliableMessage(message);
@@ -187,11 +194,11 @@ public class PlayState extends State {
         }
     }
 
-    public void receivePosition(int xPos, int yPos){
+    public void receivePosition(int receivedXPos, int receivedYPos){
         // https://stackoverflow.com/questions/3276821/dealing-with-lag-in-xna-lidgren/3276994#3276994
-        Gdx.app.log(TAG," received pos: " + xPos + " : "+ yPos);
-
-        playerTwo.setPos(xPos, yPos);
+        Gdx.app.log(TAG," received pos: " + receivedXPos + " : "+ receivedYPos);
+        playerTwo.setReceivedPos(receivedXPos, receivedYPos);
+        canInterpolate = true;
     }
 
     /**
@@ -210,16 +217,22 @@ public class PlayState extends State {
      * @param xPos  Received X position from player two
      * @param yPos  Received Y position from player two
      */
-    void Interpolate(float dt, int xPos, int yPos) {
-        int differenceX = xPos - playerTwo.getxPos();
-        int differenceY = xPos - playerTwo.getyPos();
-        if (differenceX < threshold && differenceY < threshold)
-            playerTwo.setPos(xPos, yPos);
-        else
-            playerTwo.setPos(Math.round(playerTwo.getxPos() +
-                                        (differenceX * dt * interpolation_constant)),
-                             Math.round(playerTwo.getyPos() +
-                                        (differenceY * dt * interpolation_constant)));
+    private void interpolate(float dt, int xPos, int yPos) {
+        if (playerTwo.getReceivedXPos() != 0 && playerTwo.getReceivedYPos() != 0){
+            // TODO: Improve interpolation...
+            // maybe increase progress when player is close to a wall?
+            // current progress value is kind of a random number
+            float progress;
+            if (dt * 5f > 0.999f){
+                progress = 0.06f;
+            } else {
+                progress = dt * 5f;
+            }
+            playerTwo.setPos(Math.round((MathUtils.lerp(xPos,playerTwo.getReceivedXPos(),
+                                                        progress))),
+                             Math.round((MathUtils.lerp(yPos,playerTwo.getReceivedYPos(),
+                                                        progress))));
+        }
     }
 
     @Override

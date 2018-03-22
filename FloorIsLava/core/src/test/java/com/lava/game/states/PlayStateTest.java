@@ -1,5 +1,6 @@
 package com.lava.game.states;
 
+import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.Arrays;
@@ -11,7 +12,7 @@ import static org.junit.Assert.*;
  */
 
 public class PlayStateTest {
-    @org.junit.Test
+    @Test
     public void intToByteArray() throws Exception {
         byte[] aa = {(byte) 0, (byte) 0, (byte) 0, (byte) 1};
         byte[] bb = {(byte) 0, (byte) 0, (byte) 0, (byte) 2};
@@ -19,7 +20,7 @@ public class PlayStateTest {
         assertNotEquals(Arrays.toString(PlayState.intToByteArray(1)), Arrays.toString(bb));
     }
 
-    @org.junit.Test
+    @Test
     public void byteArrayToInt() throws Exception {
     }
 

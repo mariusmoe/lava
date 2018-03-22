@@ -232,7 +232,9 @@ public class AndroidLauncher extends AndroidApplication implements PlayServices{
 					int xPos 		 = byteArrayToInt(Arrays.copyOfRange(buf,5,9));
 					int yPos 		 = byteArrayToInt(Arrays.copyOfRange(buf,9,13));
 
-					playState.receivePosition(xPos,yPos);
+					if (playState != null){
+						playState.receivePosition(xPos,yPos);
+					}
 
 					this.serialNumber = serialNumber;
 				}
