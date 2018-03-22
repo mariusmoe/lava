@@ -18,6 +18,7 @@ public class Player {
     private Direction dir;  // the direction the player is facing
     private static final int MOVEMENT = 4;
 
+
     /**
      * Directly set the position of the player, should only be used for playerTwo
      * @param xPos  x position of the player
@@ -35,8 +36,9 @@ public class Player {
 
     public Player(Texture tex) {
         this.texture = tex;
-        this.xPos = random(texture.getWidth()/2, FloorIsLava.WIDTH-texture.getWidth()/2);
-        this.yPos = random(texture.getHeight()/2, FloorIsLava.HEIGHT-texture.getHeight()/2);
+        this.xPos = FloorIsLava.WIDTH/2;
+        this.yPos = FloorIsLava.HEIGHT/2;
+
         int d = random(1,4);
         switch (d) {
             case 1:
@@ -55,60 +57,53 @@ public class Player {
     }
 
     public void update() {
-        // TODO: there are some errors her :o
+
         if (dir == Direction.NORTH){
-            if ((yPos + MOVEMENT) + (texture.getHeight()) >= PlayState.Y_TILES * 48 + PlayState.CUTOFF_BOTTOM) {
+            if ((yPos + MOVEMENT) + (PlayState.PLAYER_HEIGHT) >= PlayState.BOARD_HEIGHT) {
                 dir = Direction.SOUTH;
                 yPos -= MOVEMENT;
             } else {
                 yPos += MOVEMENT;
             }
         } else if (dir == Direction.EAST) {
-            if (xPos + (texture.getWidth()) >= FloorIsLava.WIDTH) {
+            if ((xPos + PlayState.PLAYER_WIDTH + MOVEMENT) >= FloorIsLava.WIDTH) {
                 dir = Direction.WEST;
                 xPos -= MOVEMENT;
             } else {
                 xPos += MOVEMENT;
             }
         } else if (dir == Direction.SOUTH) {
-            if ((yPos - MOVEMENT) + (texture.getHeight()/2) <= PlayState.CUTOFF_BOTTOM) {
+            if ((yPos - MOVEMENT) <= PlayState.CUTOFF_BOTTOM) {
                 dir = Direction.NORTH;
                 yPos += MOVEMENT;
             } else {
                 yPos -= MOVEMENT;
             }
         } else if (dir == Direction.WEST) {
-            if (xPos + (texture.getWidth()) <= 0) {
+            if ((xPos - MOVEMENT) <= 0) {
                 dir = Direction.EAST;
                 xPos += MOVEMENT;
             } else {
                 xPos -= MOVEMENT;
             }
         }
-
     }
 
-    public void turnUp() { dir = Direction.NORTH; }
+    public void turnUp()        { dir = Direction.NORTH; }
 
-    public void turnRight() { dir = Direction.EAST; }
+    public void turnRight()     { dir = Direction.EAST; }
 
-    public void turnLeft() { dir = Direction.WEST; }
+    public void turnLeft()      { dir = Direction.WEST; }
 
-    public void turnDown() { dir = Direction.SOUTH; }
+    public void turnDown()      { dir = Direction.SOUTH; }
 
     public Texture getTexture() {
         return texture;
     }
 
-    public int getxPos() {
-        return xPos;
-    }
+    public int getxPos()        { return xPos; }
 
-    public int getyPos() {
-        return yPos;
-    }
+    public int getyPos()        { return yPos; }
 
-    public void dispose() {
-        texture.dispose();
-    }
+    public void dispose()       { texture.dispose(); }
 }

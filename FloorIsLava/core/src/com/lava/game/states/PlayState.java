@@ -25,22 +25,26 @@ public class PlayState extends State {
     private Board board;
 
     public static FloorIsLava game;
-    public static int X_TILES = 10;
-    public static int Y_TILES = 12;
+    public static int X_TILES       = 10;
+    public static int Y_TILES       = 12;
+    public static int PLAYER_HEIGHT = 16;
+    public static int PLAYER_WIDTH  = 16;
     public static int CUTOFF_BOTTOM = 80;
-    public static String TAG = "LavaGame";
+    public static int TILE_SIZE     = 48;
+    public static String TAG        = "LavaGame";
+    public static int BOARD_HEIGHT = (Y_TILES * TILE_SIZE) + CUTOFF_BOTTOM;
 
     // Collectors are used for accumulating delta time, to enable actions that only execute after
     // a given time period has passed
-    private float collector = 0;        // collector used for deterioration of tiles
+    private float collector     = 0;    // collector used for deterioration of tiles
     private float tickCollector = 0;    // multiplayer tick collector
 
     private Player playerOne;
     private Player playerTwo;
-    private int threshold = 20;
+    private int threshold = 20;     // Number of px before interpolating
     private float interpolation_constant = 0.5f;    // How fast the interpolation will happen
 
-    Boolean multiplayer;
+    private Boolean multiplayer;
     private int serialNumber = 0;       // multiplayer packets can arrive out of order and are given
                                         // a serial number
 
@@ -58,31 +62,28 @@ public class PlayState extends State {
 
         playerOne = new Player(new Texture("pl.png"));
         if (multiplayer){
-            playerTwo = new Player(new Texture("pl.png"));
+            playerTwo = new Player(new Texture("player.png"));
             game.playServices.registerGameState(this);
         }
 
         // Let gdx handle swipes in a separate thread
-        Gdx.input.setInputProcessor(new SimpleDirectionGestureDetector(new SimpleDirectionGestureDetector.DirectionListener() {
-
+        Gdx.input.setInputProcessor(new SimpleDirectionGestureDetector(
+                new SimpleDirectionGestureDetector.DirectionListener() {
             @Override
             public void onUp() {
                 Gdx.app.log(TAG,"MAgic - swiped up");
                 playerOne.turnUp();
             }
-
             @Override
             public void onRight() {
                 Gdx.app.log(TAG,"MAgic - swiped right");
                 playerOne.turnRight();
             }
-
             @Override
             public void onLeft() {
                 Gdx.app.log(TAG,"MAgic - swiped left");
                 playerOne.turnLeft();
             }
-
             @Override
             public void onDown() {
                 Gdx.app.log(TAG,"MAgic - swiped down");
@@ -108,25 +109,36 @@ public class PlayState extends State {
         //Gdx.app.log("LavaGame","xPos: " + player.getxPos() + " yPos: " + player.getyPos());
 
         // Check if in lava => dead
-        if (board.getBoard().get(((playerOne.getyPos()-CUTOFF_BOTTOM-10)/48)).get((playerOne.getxPos()/48)).getHp() == 0) {
+
+        if (board.getBoard().get(((playerOne.getyPos()-CUTOFF_BOTTOM)/TILE_SIZE))
+                            .get((playerOne.getxPos()/TILE_SIZE)).getHp() == 0) {
             Gdx.app.log(TAG,"Player died! abort game now...");
             // TODO: Kill the player
-            // TODO: send death message if multiplayer
+            // TODO: NYI send death message if multiplayer!!!
 
         }
 
-        board.getBoard().get(((playerOne.getyPos()-CUTOFF_BOTTOM)/48)).get((playerOne.getxPos()/48)).deteriorate();
+        // This is only for testing purposes
+        board.getBoard().get((((playerOne.getyPos() - CUTOFF_BOTTOM) + (PLAYER_HEIGHT/2))/TILE_SIZE))
+                        .get(((playerOne.getxPos() + (PLAYER_WIDTH/2))/TILE_SIZE))
+                        .deteriorate();
+
         // TODO: Decrease time for deterioration of tile
         //       This has to be small enough to be able to send it reliably in multiplayer, but also
         //       fas enough for the user to understand that walking over a tile deteriorate it
         if (collector >= 1){
             // Doo something every second
-            Gdx.app.log(TAG,"xPos: " + playerOne.getxPos() + " yPos: " + playerOne.getyPos() +" ----- ");
-            Gdx.app.log(TAG,"xPos: " + playerOne.getxPos()/48 + " yPos: " + (playerOne.getyPos()-CUTOFF_BOTTOM)/48 +" ----- ");
-            Gdx.app.log(TAG," size: "+board.getBoard().size());
+            Gdx.app.log(TAG,"xPos: " + playerOne.getxPos() +
+                            " yPos: " + playerOne.getyPos() +" --- " +
+                            (((playerOne.getyPos() - CUTOFF_BOTTOM) + (PLAYER_HEIGHT/2))/
+                             TILE_SIZE) + " : " +
+                            ((playerOne.getxPos() +
+                              (PLAYER_WIDTH/2))/TILE_SIZE));
 
-            board.getBoard().get(((playerOne.getyPos()-CUTOFF_BOTTOM-10)/48))
-                            .get((playerOne.getxPos()/48))
+
+            board.getBoard().get((((playerOne.getyPos() - CUTOFF_BOTTOM) + (PLAYER_HEIGHT/2))/
+                                  TILE_SIZE))
+                            .get(((playerOne.getxPos() + (PLAYER_WIDTH/2))/TILE_SIZE))
                             .deteriorate();
 
             // Todo: if multiplayer => send reliable message about damage to tile
@@ -139,11 +151,13 @@ public class PlayState extends State {
             collector += dt;
         }
 
+
         // Multiplayer stuff here
         if (multiplayer){
             if (tickCollector >= 0.33) {
-                // TODO: broadcast position
                 // Build byte array
+                Gdx.app.log(TAG," Building byte array: ");
+
                 byte    pos  = (byte) 'P';
                 byte[]  serialNumberByte = intToByteArray(serialNumber);
                 byte[]  xPos = intToByteArray(playerOne.getxPos());
@@ -151,19 +165,21 @@ public class PlayState extends State {
                 byte[] message = new byte[1 + serialNumberByte.length + xPos.length + yPos.length];
                 message[0] = pos;
                 // TODO: clean up this code!
-                for (int i = 1; i < message.length; ++i) {
+                for (int i = 0; i < message.length; ++i) {
                     if (i < xPos.length) {
-                        message[i] = xPos[i];
+                        message[i+1] = serialNumberByte[i];
                     }
-                    else {
-                        if (i < (xPos.length + yPos.length)){
-                        message[i] = yPos[i - xPos.length];
-                        } else {
-                            message[i] = yPos[i - xPos.length - yPos.length];
+                    else if (i < (serialNumberByte.length + xPos.length)){
+                            message[i+1] = xPos[i - serialNumberByte.length];
                         }
-                    }
+                    else if (i < (xPos.length + yPos.length + serialNumberByte.length)){
+                            message[i+1] = yPos[i - xPos.length - yPos.length];
+                        }
+
                 }
+                Gdx.app.log(TAG," Building byte array: " + Arrays.toString(message));
                 serialNumber++;
+                tickCollector = 0;
                 game.playServices.sendUnreliableMessage(message);
             } else {
                 tickCollector += dt;
@@ -173,6 +189,7 @@ public class PlayState extends State {
 
     public void receivePosition(int xPos, int yPos){
         // https://stackoverflow.com/questions/3276821/dealing-with-lag-in-xna-lidgren/3276994#3276994
+        Gdx.app.log(TAG," received pos: " + xPos + " : "+ yPos);
 
         playerTwo.setPos(xPos, yPos);
     }
@@ -199,8 +216,10 @@ public class PlayState extends State {
         if (differenceX < threshold && differenceY < threshold)
             playerTwo.setPos(xPos, yPos);
         else
-            playerTwo.setPos(Math.round(playerTwo.getxPos() + (differenceX * dt * interpolation_constant)),
-                             Math.round(playerTwo.getyPos() + (differenceY * dt * interpolation_constant)));
+            playerTwo.setPos(Math.round(playerTwo.getxPos() +
+                                        (differenceX * dt * interpolation_constant)),
+                             Math.round(playerTwo.getyPos() +
+                                        (differenceY * dt * interpolation_constant)));
     }
 
     @Override
@@ -210,16 +229,17 @@ public class PlayState extends State {
 
         for (int r = 0; r < board.getBoard().size(); r++) {
             for (int c = 0; c < board.getBoard().get(r).size(); c++) {
-                //Gdx.app.log("Tiles","x: " + board.getBoard().get(r).get(c).getxPos() + " y: " + board.getBoard().get(r).get(c).getyPos()+ " HL: " + board.getBoard().get(r).get(c).getHalfLife());
                 sb.draw(board.getBoard().get(r).get(c).getTexture(),
-                        board.getBoard().get(r).get(c).getxPos()* 48,
-                        board.getBoard().get(r).get(c).getyPos()*48+CUTOFF_BOTTOM,
-                        48,48);
+                        board.getBoard().get(r).get(c).getxPos() * TILE_SIZE,
+                        board.getBoard().get(r).get(c).getyPos() * TILE_SIZE + CUTOFF_BOTTOM,
+                        TILE_SIZE, TILE_SIZE);
             }
         }
-        sb.draw(playerOne.getTexture(),playerOne.getxPos(),playerOne.getyPos(),16,16);
+        sb.draw(playerOne.getTexture(),playerOne.getxPos(),playerOne.getyPos(),
+                PLAYER_HEIGHT,PLAYER_HEIGHT);
         if (multiplayer) {
-            sb.draw(playerTwo.getTexture(),playerTwo.getxPos(),playerTwo.getyPos(),16,16);
+            sb.draw(playerTwo.getTexture(),playerTwo.getxPos(),playerTwo.getyPos(),
+                    PLAYER_HEIGHT,PLAYER_HEIGHT);
         }
         sb.end();
     }

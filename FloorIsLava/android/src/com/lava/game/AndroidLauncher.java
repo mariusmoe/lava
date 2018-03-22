@@ -386,7 +386,7 @@ public class AndroidLauncher extends AndroidApplication implements PlayServices{
 						@Override
 						public void onSuccess(Player player) {
 							mPlayerId = player.getPlayerId();
-							debugLog("moe debug - mPlayerId" + mPlayerId);
+							debugLog("moe debug - mPlayerId: " + mPlayerId);
 							//switchToMainScreen();
 						}
 					})

@@ -17,6 +17,9 @@ public class MenuState extends State {
     private Texture signIn;
     private Texture singlePlayer;
     private Texture playMultiplayer;
+    public static String TAG = "LavaGame";
+    boolean startMultiplayer = false;
+
 
     public static FloorIsLava game;
 
@@ -41,6 +44,12 @@ public class MenuState extends State {
     @Override
     public void update(float dt) {
         cam.update();
+        if (startMultiplayer){
+            Gdx.app.log(TAG,"Starting game!");
+            Gdx.gl.glClearColor(0, 0, 1, 1);
+            gsm.set(new PlayState(gsm, game, true));
+            dispose();
+        }
 
         // TODO: Clean up these buttons, maybe use a scene?
         // TODO: move to handleInput?
@@ -77,8 +86,7 @@ public class MenuState extends State {
     }
 
     public void startGame() {
-        gsm.set(new PlayState(gsm, game, true));
-        dispose();
+        startMultiplayer = true;
     }
 
     @Override

@@ -41,7 +41,7 @@ public interface PlayServices {
      * Has to be called before multiplayer messages can be used by the game
      * @param pstate
      */
-    public void registerGameState(PlayState pstate);
+    public void registerGameState(PlayState pstate);    // TODO: convert to observer
 
 
     /**
