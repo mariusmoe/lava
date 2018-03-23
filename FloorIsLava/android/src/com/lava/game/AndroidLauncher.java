@@ -286,6 +286,7 @@ public class AndroidLauncher extends AndroidApplication implements PlayServices{
 		// etc.
 		@Override
 		public void onPeerDeclined(Room room, @NonNull List<String> arg1) {
+			// TODO: cancel game!
 			updateRoom(room);
 		}
 
@@ -309,6 +310,7 @@ public class AndroidLauncher extends AndroidApplication implements PlayServices{
 
 		@Override
 		public void onPeerLeft(Room room, @NonNull List<String> peersWhoLeft) {
+			// TODO: cancel game!
 			updateRoom(room);
 		}
 
@@ -329,6 +331,7 @@ public class AndroidLauncher extends AndroidApplication implements PlayServices{
 
 		@Override
 		public void onPeersDisconnected(Room room, @NonNull List<String> peers) {
+			// TODO: cancel game!
 			updateRoom(room);
 		}
 	};
