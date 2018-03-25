@@ -170,9 +170,7 @@ public class AndroidLauncher extends AndroidApplication implements PlayServices{
 				//showGameError();
 				return;
 			}
-
-			// TODO show the waiting room UI
-			//showWaitingRoom(room);
+			mState.showWaitingRoom();
 		}
 
 		// Called when we've successfully left the room (this happens a result of voluntarily leaving
@@ -181,7 +179,8 @@ public class AndroidLauncher extends AndroidApplication implements PlayServices{
 		public void onLeftRoom(int statusCode, @NonNull String roomId) {
 			// we have left the room; return to main screen.
 			debugLog("onLeftRoom, code " + statusCode);
-			//switchToMainScreen();
+
+			mState.abortWaitingRoom();
 		}
 	};
 
@@ -203,18 +202,6 @@ public class AndroidLauncher extends AndroidApplication implements PlayServices{
 			this.mState.startGame();
 		}
 	}
-
-	// returns whether there are enough players to start the game
-	boolean shouldStartGame(Room room) {
-		int connectedPlayers = 0;
-		for (Participant p : room.getParticipants()) {
-			if (p.isConnectedToRoom()) {
-				++connectedPlayers;
-			}
-		}
-		return connectedPlayers >= MIN_PLAYERS;
-	}
-
 
 	OnRealTimeMessageReceivedListener mOnRealTimeMessageReceivedListener = new OnRealTimeMessageReceivedListener() {
 		public int serialNumber = -1;
@@ -249,6 +236,25 @@ public class AndroidLauncher extends AndroidApplication implements PlayServices{
         }
 	};
 
+	// returns whether there are enough players to start the game
+	boolean shouldStartGame(Room room) {
+		int connectedPlayers = 0;
+		for (Participant p : room.getParticipants()) {
+			if (p.isConnectedToRoom()) {
+				++connectedPlayers;
+			}
+		}
+		return connectedPlayers >= MIN_PLAYERS;
+	}
+
+	// returns true if the there is a game in progress
+	void shouldCancelGame(){
+		if (mPlaying){
+			mPlaying = false;
+			this.playState.cancelGame();
+		}
+	}
+
 	private RoomStatusUpdateCallback mRoomStatusUpdateCallback = new RoomStatusUpdateCallback() {
 		// Called when we are connected to the room. We're not ready to play yet! (maybe not everybody
 		// is connected yet).
@@ -277,6 +283,8 @@ public class AndroidLauncher extends AndroidApplication implements PlayServices{
 			mRoomId = null;
 			mRoomConfig = null;
 			//showGameError();
+			// TODO: go to main screen
+			shouldCancelGame();
 		}
 
 
@@ -286,8 +294,8 @@ public class AndroidLauncher extends AndroidApplication implements PlayServices{
 		// etc.
 		@Override
 		public void onPeerDeclined(Room room, @NonNull List<String> arg1) {
-			// TODO: cancel game!
 			updateRoom(room);
+			shouldCancelGame();
 		}
 
 		@Override
@@ -310,8 +318,8 @@ public class AndroidLauncher extends AndroidApplication implements PlayServices{
 
 		@Override
 		public void onPeerLeft(Room room, @NonNull List<String> peersWhoLeft) {
-			// TODO: cancel game!
 			updateRoom(room);
+			shouldCancelGame();
 		}
 
 		@Override
@@ -331,8 +339,8 @@ public class AndroidLauncher extends AndroidApplication implements PlayServices{
 
 		@Override
 		public void onPeersDisconnected(Room room, @NonNull List<String> peers) {
-			// TODO: cancel game!
 			updateRoom(room);
+			shouldCancelGame();
 		}
 	};
 
@@ -458,8 +466,9 @@ public class AndroidLauncher extends AndroidApplication implements PlayServices{
 						}
 					});
 			//switchToScreen(R.id.screen_wait);
+			// TODO: switchToMainScreen();
 		} else {
-			//switchToMainScreen();
+			// TODO: switchToMainScreen();
 		}
 	}
 

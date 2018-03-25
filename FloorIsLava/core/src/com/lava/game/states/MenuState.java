@@ -86,7 +86,17 @@ public class MenuState extends State {
     }
 
     public void startGame() {
+        // TODO: remove loading circle here
         startMultiplayer = true;
+    }
+
+    public void showWaitingRoom() {
+        // TODO: add loading circle here;
+        Gdx.app.log(TAG,"Waiting for game..." );
+    }
+    public void abortWaitingRoom() {
+        // TODO: remove loading circle here;
+        Gdx.app.log(TAG,"Waiting for game..." );
     }
 
     @Override

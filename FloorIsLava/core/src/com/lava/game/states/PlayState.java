@@ -235,6 +235,11 @@ public class PlayState extends State {
         }
     }
 
+    public void cancelGame() {
+        gsm.set(new MenuState(gsm, game));
+        dispose();
+    }
+
     @Override
     public void render(SpriteBatch sb) {
         sb.begin();
