@@ -1,12 +1,15 @@
 package com.lava.game.states;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector3;
 import com.lava.game.FloorIsLava;
 import com.badlogic.gdx.math.*;
+import com.lava.game.utils.SimpleDirectionGestureDetector;
 
 /**
  * Created by moe on 08.03.18.
@@ -26,9 +29,31 @@ public class MenuState extends State {
     public MenuState(GameStateManager gsm, FloorIsLava game) {
         super(gsm);
         this.game = game;
+        Gdx.input.setCatchBackKey(true);
 
         // Again set the background color, why?
-        Gdx.gl.glClearColor(1, 0, 0, 1);
+        //Gdx.gl.glClearColor(1, 0, 0, 1);
+
+        // Need to set a input processor to be able to use isKeyJustPressed
+        // took too long time to figure this out!
+        Gdx.input.setInputProcessor(new SimpleDirectionGestureDetector(
+                new SimpleDirectionGestureDetector.DirectionListener() {
+                    @Override
+                    public void onUp() {
+
+                    }
+                    @Override
+                    public void onRight() {
+
+                    }
+                    @Override
+                    public void onLeft() {
+                    }
+                    @Override
+                    public void onDown() {
+
+                    }
+                }));
 
         signIn = new Texture("button_task_1.png");
         singlePlayer = new Texture("button_task_2.png");
@@ -37,13 +62,16 @@ public class MenuState extends State {
 
     @Override
     protected void handleInput() {
-
+        if(Gdx.input.isKeyJustPressed(Input.Keys.BACK)){
+            Gdx.app.exit();
+        }
     }
 
 
     @Override
     public void update(float dt) {
         cam.update();
+        handleInput();
         if (startMultiplayer){
             Gdx.app.log(TAG,"Starting game!");
             Gdx.gl.glClearColor(0, 0, 1, 1);

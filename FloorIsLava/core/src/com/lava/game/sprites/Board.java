@@ -32,8 +32,9 @@ public class Board {
     /**
      * Return's the board
      *
-     * To get a tile, use: board.getBoard().get((yCoordinate).get(xCoordinate)
-     * @return board
+     * UPSIDE DOWN IMPLEMENTATION! To get a tile, use:
+     * board.getBoard().get((yCoordinate).get(xCoordinate)
+     * @return board    The board created when starting a game
      */
     public ArrayList<ArrayList<Tile>> getBoard() {
         return board;

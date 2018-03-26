@@ -39,6 +39,7 @@ public class PlayState extends State {
     // a given time period has passed
     private float collector     = 0;    // collector used for deterioration of tiles
     private float tickCollector = 0;    // multiplayer tick collector
+    private boolean toCancel = false;
 
     private Player playerOne;
     private Player playerTwo;
@@ -61,6 +62,7 @@ public class PlayState extends State {
         this.game = game;
         this.multiplayer = multiplayer;
         this.board = new Board(X_TILES ,Y_TILES);
+
 
         playerOne = new Player(new Texture("pl.png"));
         if (multiplayer){
@@ -97,7 +99,7 @@ public class PlayState extends State {
 
     @Override
     protected void handleInput() {
-        if (Gdx.input.isKeyPressed(Input.Keys.BACK)){
+        if (Gdx.input.isKeyJustPressed(Input.Keys.BACK)){
             gsm.set(new MenuState(gsm, game));
             dispose();
         }
@@ -108,6 +110,10 @@ public class PlayState extends State {
         cam.update();   // Is this necessary?
         playerOne.update();
         handleInput();
+        if (toCancel){
+            gsm.set(new MenuState(gsm, game));
+            dispose();
+        }
         //Gdx.app.log("LavaGame","xPos: " + player.getxPos() + " yPos: " + player.getyPos());
 
         // Check if in lava => dead
@@ -161,6 +167,7 @@ public class PlayState extends State {
                 interpolate(dt, playerTwo.getxPos(), playerTwo.getyPos());
             }
 
+            // 0.033 will trigger 33 times per second
             if (tickCollector >= 0.033) {
                 // Build byte array
                 //Gdx.app.log(TAG," Building byte array: ");
@@ -171,7 +178,7 @@ public class PlayState extends State {
                 byte[]  yPos = intToByteArray(playerOne.getyPos());
                 byte[] message = new byte[1 + serialNumberByte.length + xPos.length + yPos.length];
                 message[0] = pos;
-                // TODO: clean up this code!
+                // TODO: clean up this code! use write()?
                 for (int i = 0; i < message.length; ++i) {
                     if (i < xPos.length) {
                         message[i+1] = serialNumberByte[i];
@@ -203,8 +210,8 @@ public class PlayState extends State {
 
     /**
      * Received damage to a tile in multiplayer
-     * @param tileX
-     * @param tileY
+     * @param tileX     Defines x coordinate for tile
+     * @param tileY     Defines Y coordinate for tile
      */
     public void receiveDamageToTile(int tileX, int tileY) {
         Gdx.app.log(TAG," Try to deteriorate tile nr: " + tileY + " : " + tileX );
@@ -236,8 +243,7 @@ public class PlayState extends State {
     }
 
     public void cancelGame() {
-        gsm.set(new MenuState(gsm, game));
-        dispose();
+        toCancel = true;
     }
 
     @Override
@@ -253,11 +259,11 @@ public class PlayState extends State {
                         TILE_SIZE, TILE_SIZE);
             }
         }
-        sb.draw(playerOne.getTexture(),playerOne.getxPos(),playerOne.getyPos(),
-                PLAYER_HEIGHT,PLAYER_HEIGHT);
+        sb.draw(playerOne.getTexture(), playerOne.getxPos(), playerOne.getyPos(),
+                PLAYER_HEIGHT, PLAYER_HEIGHT);
         if (multiplayer) {
-            sb.draw(playerTwo.getTexture(),playerTwo.getxPos(),playerTwo.getyPos(),
-                    PLAYER_HEIGHT,PLAYER_HEIGHT);
+            sb.draw(playerTwo.getTexture(), playerTwo.getxPos(), playerTwo.getyPos(),
+                    PLAYER_HEIGHT, PLAYER_HEIGHT);
         }
         sb.end();
     }

@@ -96,7 +96,12 @@ public class AndroidLauncher extends AndroidApplication implements PlayServices{
 		signInSilently();
 
 		AndroidApplicationConfiguration config = new AndroidApplicationConfiguration();
+
+
 		initialize(new FloorIsLava(this), config);
+
+		// Keep screen on
+		graphics.getView().setKeepScreenOn(true);
 	}
 
 	MenuState mState = null;
@@ -405,33 +410,6 @@ public class AndroidLauncher extends AndroidApplication implements PlayServices{
 					})
 					.addOnFailureListener(createFailureListener("There was a problem getting the player id!"));
 		}
-
-		// register listener so we are notified if we receive an invitation to play
-		// while we are in the game
-		//mInvitationsClient.registerInvitationCallback(mInvitationCallback);
-
-		// get the invitation from the connection hint
-		// Retrieve the TurnBasedMatch from the connectionHint
-        /*
-        GamesClient gamesClient = Games.getGamesClient(MainActivity.this, googleSignInAccount);
-        gamesClient.getActivationHint()
-                .addOnSuccessListener(new OnSuccessListener<Bundle>() {
-                    @Override
-                    public void onSuccess(Bundle hint) {
-                        if (hint != null) {
-                            Invitation invitation =
-                                    hint.getParcelable(Multiplayer.EXTRA_INVITATION);
-
-                            if (invitation != null && invitation.getInvitationId() != null) {
-                                // retrieve and cache the invitation ID
-                                Log.d(TAG, "onConnected: connection hint has a room invite!");
-                                acceptInviteToRoom(invitation.getInvitationId());
-                            }
-                        }
-                    }
-                })
-                .addOnFailureListener(createFailureListener("There was a problem getting the activation hint!"));
-        */
 	}
 
 	private OnFailureListener createFailureListener(final String string) {
@@ -472,13 +450,6 @@ public class AndroidLauncher extends AndroidApplication implements PlayServices{
 		}
 	}
 
-	/*@Override
-	protected void onStart()
-	{
-		super.onStart();
-		gameHelper.onStart(this);
-	}*/
-
 	@Override
 	protected void onStop()
 	{
@@ -486,11 +457,6 @@ public class AndroidLauncher extends AndroidApplication implements PlayServices{
 
 		// if we're in a room, leave it.
 		leaveRoom();
-
-		// stop trying to keep the screen on
-		//stopKeepingScreenOn();
-
-		//switchToMainScreen();
 
 		super.onStop();
 	}
