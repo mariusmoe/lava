@@ -18,7 +18,7 @@ public class Player {
     private int receivedYPos;
     private Texture texture;
     private Direction dir;  // the direction the player is facing
-    private static final int MOVEMENT = 4;
+    private static final int MOVEMENT = 200;
 
 
     /**
@@ -36,13 +36,46 @@ public class Player {
      * @param X  received x position of the player
      * @param Y  received y position of the player
      */
-    public void setReceivedPos(int X, int Y) {
+    public void setReceivedPos(int X, int Y, int direction) {
         receivedXPos = X;
         receivedYPos = Y;
+        switch (direction) {
+            case 1:
+                this.dir = Direction.NORTH;
+                break;
+            case 2:
+                this.dir = Direction.EAST;
+                break;
+            case 3:
+                this.dir = Direction.SOUTH;
+                break;
+            case 4:
+                this.dir = Direction.WEST;
+                break;
+        }
     }
 
     public int getReceivedXPos() {return receivedXPos;}
     public int getReceivedYPos() {return receivedYPos;}
+
+    public int getDir() {
+        int direction = 1;
+        switch (dir) {
+            case NORTH:
+                direction = 1;
+                break;
+            case EAST:
+                direction = 2;
+                break;
+            case SOUTH:
+                direction = 3;
+                break;
+            case WEST:
+                direction = 4;
+                break;
+        }
+        return direction;
+    }
 
 
     private enum Direction {
@@ -71,35 +104,35 @@ public class Player {
         }
     }
 
-    public void update() {
-
+    public void update(float dt) {
+        int distance = Math.round(MOVEMENT * dt);
         if (dir == Direction.NORTH){
-            if ((yPos + MOVEMENT) + (PlayState.PLAYER_HEIGHT) >= PlayState.BOARD_HEIGHT) {
+            if ((yPos + distance) + (PlayState.PLAYER_HEIGHT) >= PlayState.BOARD_HEIGHT) {
                 dir = Direction.SOUTH;
-                yPos -= MOVEMENT;
+                yPos -= distance;
             } else {
-                yPos += MOVEMENT;
+                yPos += distance;
             }
         } else if (dir == Direction.EAST) {
-            if ((xPos + PlayState.PLAYER_WIDTH + MOVEMENT) >= FloorIsLava.WIDTH) {
+            if ((xPos + PlayState.PLAYER_WIDTH + distance) >= FloorIsLava.WIDTH) {
                 dir = Direction.WEST;
-                xPos -= MOVEMENT;
+                xPos -= distance;
             } else {
-                xPos += MOVEMENT;
+                xPos += distance;
             }
         } else if (dir == Direction.SOUTH) {
-            if ((yPos - MOVEMENT) <= PlayState.CUTOFF_BOTTOM) {
+            if ((yPos - distance) <= PlayState.CUTOFF_BOTTOM) {
                 dir = Direction.NORTH;
-                yPos += MOVEMENT;
+                yPos += distance;
             } else {
-                yPos -= MOVEMENT;
+                yPos -= distance;
             }
         } else if (dir == Direction.WEST) {
-            if ((xPos - MOVEMENT) <= 0) {
+            if ((xPos - distance) <= 0) {
                 dir = Direction.EAST;
-                xPos += MOVEMENT;
+                xPos += distance;
             } else {
-                xPos -= MOVEMENT;
+                xPos -= distance;
             }
         }
     }

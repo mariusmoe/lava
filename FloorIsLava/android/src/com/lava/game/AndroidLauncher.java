@@ -215,7 +215,7 @@ public class AndroidLauncher extends AndroidApplication implements PlayServices{
 		public void onRealTimeMessageReceived(@NonNull RealTimeMessage realTimeMessage) {
 			byte[] buf = realTimeMessage.getMessageData();
 			String sender = realTimeMessage.getSenderParticipantId();
-			Log.d(TAG, "Message received: " + (char) buf[0] + "/" + (int) buf[1]);
+			// Log.d(TAG, "Message received: " + (char) buf[0] + "/" + (int) buf[1]);
 
 			// If the message is an unreliable position update
 			if (buf[0] == 'P') {
@@ -223,9 +223,9 @@ public class AndroidLauncher extends AndroidApplication implements PlayServices{
 				if (serialNumber > this.serialNumber){
 					int xPos 		 = byteArrayToInt(Arrays.copyOfRange(buf,5,9));
 					int yPos 		 = byteArrayToInt(Arrays.copyOfRange(buf,9,13));
-
+					int dir			 = (int) buf[13];
 					if (playState != null){
-						playState.receivePosition(xPos,yPos);
+						playState.receivePosition(xPos,yPos, dir);
 					}
 
 					this.serialNumber = serialNumber;

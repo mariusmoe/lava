@@ -26,25 +26,29 @@ public class PlayState extends State {
     private Board board;
 
     public static FloorIsLava game;
-    public static int X_TILES       = 10;
-    public static int Y_TILES       = 12;
-    public static int PLAYER_HEIGHT = 16;
-    public static int PLAYER_WIDTH  = 16;
-    public static int CUTOFF_BOTTOM = 80;
-    public static int TILE_SIZE     = 48;
-    public static String TAG        = "LavaGame";
+    // Remember that all pixel sizes are in "virtual" pixels stretched by the camera
+    public static int X_TILES       = 10;   // Number of tiles in x direction
+    public static int Y_TILES       = 12;   // Number of tiles in y direction
+    public static int PLAYER_HEIGHT = 16;   // Height in pixels of the player
+    public static int PLAYER_WIDTH  = 16;   // Width  in pixels of the player
+    public static int CUTOFF_BOTTOM = 80;   // Bottom offset (get some space at the bottom)
+    public static int TILE_SIZE     = 48;   // A tile is a square with that pany pixels
+    public static String TAG        = "LavaGame";   // Use "lava" or "Lava" in the regex for debugging
     public static int BOARD_HEIGHT = (Y_TILES * TILE_SIZE) + CUTOFF_BOTTOM;
+    private float INTERPOLATION_CONSTANT = (float) 5;    // How fast the interpolation will happen
+
 
     // Collectors are used for accumulating delta time, to enable actions that only execute after
     // a given time period has passed
     private float collector     = 0;    // collector used for deterioration of tiles
     private float tickCollector = 0;    // multiplayer tick collector
-    private boolean toCancel = false;
-
+    private boolean toCancel = false;   // Because of rendering cycles "toCancel" is set to true when
+                                        // the game is to be canceled at the next cycle. Or else
+                                        // there will be rendering issues.
     private Player playerOne;
+
+
     private Player playerTwo;
-    private int threshold = 2;     // Number of px before interpolating
-    private float interpolation_constant = (float) 5;    // How fast the interpolation will happen
 
     private Boolean multiplayer;
     private int serialNumber = 0;       // multiplayer packets can arrive out of order and are given
@@ -100,6 +104,7 @@ public class PlayState extends State {
     @Override
     protected void handleInput() {
         if (Gdx.input.isKeyJustPressed(Input.Keys.BACK)){
+            // TODO: leave multiplayer game properly
             gsm.set(new MenuState(gsm, game));
             dispose();
         }
@@ -108,7 +113,10 @@ public class PlayState extends State {
     @Override
     public void update(float dt) {
         cam.update();   // Is this necessary?
-        playerOne.update();
+        playerOne.update(dt);
+        if (multiplayer){
+            playerTwo.update(dt);
+        }
         handleInput();
         if (toCancel){
             gsm.set(new MenuState(gsm, game));
@@ -127,33 +135,22 @@ public class PlayState extends State {
         }
 
         // This is only for testing purposes
-        board.getBoard().get((((playerOne.getyPos() - CUTOFF_BOTTOM) + (PLAYER_HEIGHT/2))/TILE_SIZE))
-                        .get(((playerOne.getxPos() + (PLAYER_WIDTH/2))/TILE_SIZE))
-                        .deteriorate();
+        //board.getBoard().get((((playerOne.getyPos() - CUTOFF_BOTTOM) + (PLAYER_HEIGHT/2))/TILE_SIZE))
+        //                .get(((playerOne.getxPos() + (PLAYER_WIDTH/2))/TILE_SIZE))
+        //                .deteriorate();
 
         // TODO: Decrease time for deterioration of tile
         //       This has to be small enough to be able to send it reliably in multiplayer, but also
         //       fas enough for the user to understand that walking over a tile deteriorate it
-        if (collector >= 1){
-            // Doo something every second
-            /*Gdx.app.log(TAG,"xPos: " + playerOne.getxPos() +
-                            " yPos: " + playerOne.getyPos() +" --- " +
-                            (((playerOne.getyPos() - CUTOFF_BOTTOM) + (PLAYER_HEIGHT/2))/
-                             TILE_SIZE) + " : " +
-                            ((playerOne.getxPos() +
-                              (PLAYER_WIDTH/2))/TILE_SIZE));
-                              */
-
-
+        if (collector >= 0.033f){
             board.getBoard().get((((playerOne.getyPos() - CUTOFF_BOTTOM) + (PLAYER_HEIGHT/2))/
                                   TILE_SIZE))
                             .get(((playerOne.getxPos() + (PLAYER_WIDTH/2))/TILE_SIZE))
                             .deteriorate();
-
             // Todo: if multiplayer => send reliable message about damage to tile
             if (multiplayer){
                 // send reliable damage message
-
+                //sendReliableMessage();
             }
             collector = 0;
         } else {
@@ -162,49 +159,73 @@ public class PlayState extends State {
 
 
         // Multiplayer stuff here
-        if (multiplayer){
-            if (canInterpolate){
-                interpolate(dt, playerTwo.getxPos(), playerTwo.getyPos());
-            }
+            if (multiplayer){
+                if (canInterpolate){
+                    interpolate(dt, playerTwo.getxPos(), playerTwo.getyPos());
+                }
 
             // 0.033 will trigger 33 times per second
-            if (tickCollector >= 0.033) {
+            if (tickCollector >= 0.033f) {
                 // Build byte array
                 //Gdx.app.log(TAG," Building byte array: ");
 
-                byte    pos  = (byte) 'P';
-                byte[]  serialNumberByte = intToByteArray(serialNumber);
-                byte[]  xPos = intToByteArray(playerOne.getxPos());
-                byte[]  yPos = intToByteArray(playerOne.getyPos());
-                byte[] message = new byte[1 + serialNumberByte.length + xPos.length + yPos.length];
-                message[0] = pos;
-                // TODO: clean up this code! use write()?
-                for (int i = 0; i < message.length; ++i) {
-                    if (i < xPos.length) {
-                        message[i+1] = serialNumberByte[i];
-                    }
-                    else if (i < (serialNumberByte.length + xPos.length)){
-                            message[i+1] = xPos[i - serialNumberByte.length];
-                        }
-                    else if (i < (xPos.length + yPos.length + serialNumberByte.length)){
-                            message[i+1] = yPos[i - xPos.length - yPos.length];
-                        }
-
-                }
+                sendUnreliableMessage();
                 //Gdx.app.log(TAG," Building byte array: " + Arrays.toString(message));
                 serialNumber++;
                 tickCollector = 0;
-                game.playServices.sendUnreliableMessage(message);
-            } else {
-                tickCollector += dt;
-            }
+        } else {
+            tickCollector += dt;
+        }
         }
     }
 
-    public void receivePosition(int receivedXPos, int receivedYPos){
+    private void sendUnreliableMessage() {
+        byte pos = (byte) 'P';
+        byte[] serialNumberByte = intToByteArray(serialNumber);
+        byte[] xPos = intToByteArray(playerOne.getxPos());
+        byte[] yPos = intToByteArray(playerOne.getyPos());
+        byte[] message = new byte[1 + serialNumberByte.length + xPos.length + yPos.length + 1];
+        message[0] = pos;
+        // TODO: clean up this code! use write()?
+        for (int i = 0; i < message.length; ++i) {
+            if (i < xPos.length) {
+                message[i + 1] = serialNumberByte[i];
+            }
+            else if (i < (serialNumberByte.length + xPos.length)) {
+                message[i + 1] = xPos[i - serialNumberByte.length];
+            }
+            else if (i < (xPos.length + yPos.length + serialNumberByte.length)) {
+                message[i + 1] = yPos[i - xPos.length - yPos.length];
+            }
+            else if (i < (xPos.length + yPos.length + serialNumberByte.length + 1)) {
+                message[i + 1] = (byte) playerOne.getDir();
+            }
+        }
+        game.playServices.sendUnreliableMessage(message);
+    }
+
+    private void sendReliableMessage() {
+        byte messageType = (byte) 'D';
+        byte[] xTile = intToByteArray(((playerOne.getxPos() + (PLAYER_WIDTH/2))/TILE_SIZE));
+        byte[] yTile = intToByteArray((((playerOne.getyPos() - CUTOFF_BOTTOM) + (PLAYER_HEIGHT/2))/
+                                       TILE_SIZE));
+        byte[] reliableMessage = new byte[1 + xTile.length + yTile.length];
+        reliableMessage[0] = messageType;
+        for (int i = 0; i < reliableMessage.length; ++i) {
+            if (i < xTile.length) {
+                reliableMessage[i + 1] = xTile[i];
+            }
+            else if (i < (xTile.length + yTile.length)) {
+                reliableMessage[i + 1] = yTile[i - xTile.length];
+            }
+        }
+        game.playServices.sendUnreliableMessage(reliableMessage);
+    }
+
+    public void receivePosition(int receivedXPos, int receivedYPos, int dir){
         // https://stackoverflow.com/questions/3276821/dealing-with-lag-in-xna-lidgren/3276994#3276994
-        Gdx.app.log(TAG," received pos: " + receivedXPos + " : "+ receivedYPos);
-        playerTwo.setReceivedPos(receivedXPos, receivedYPos);
+        //Gdx.app.log(TAG," received pos: " + receivedXPos + " : "+ receivedYPos);
+        playerTwo.setReceivedPos(receivedXPos, receivedYPos, dir);
         canInterpolate = true;
     }
 
@@ -226,20 +247,25 @@ public class PlayState extends State {
      */
     private void interpolate(float dt, int xPos, int yPos) {
         if (playerTwo.getReceivedXPos() != 0 && playerTwo.getReceivedYPos() != 0){
-            // TODO: Improve interpolation...
-            // maybe increase progress when player is close to a wall?
-            // current progress value is kind of a random number
-            float progress;
-            if (dt * 5f > 0.999f){
-                progress = 0.06f;
-            } else {
-                progress = dt * 5f;
+            if ((Math.abs(playerTwo.getxPos() - playerTwo.getReceivedXPos()) > 15) ||
+                (Math.abs(playerTwo.getyPos() - playerTwo.getReceivedYPos()) > 15)){
+                Gdx.app.log(TAG," Interpolating " );
+
+                    // TODO: Improve interpolation...
+                    // maybe increase progress when player is close to a wall?
+                    // current progress value is kind of a random number
+                    float progress;
+                if (dt * 5f > 0.999f){
+                        progress = 0.06f;
+                    } else {
+                    progress = dt * 4f;
+                    }
+                    playerTwo.setPos(Math.round((MathUtils.lerp(xPos,playerTwo.getReceivedXPos(),
+                                                                progress))),
+                                     Math.round((MathUtils.lerp(yPos,playerTwo.getReceivedYPos(),
+                                                                progress))));
+                }
             }
-            playerTwo.setPos(Math.round((MathUtils.lerp(xPos,playerTwo.getReceivedXPos(),
-                                                        progress))),
-                             Math.round((MathUtils.lerp(yPos,playerTwo.getReceivedYPos(),
-                                                        progress))));
-        }
     }
 
     public void cancelGame() {
