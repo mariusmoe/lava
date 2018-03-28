@@ -40,6 +40,14 @@ public class Board {
         return board;
     }
 
+    public void update() {
+        for (int r = 0; r < board.size(); r++) {
+            for (int c = 0; c < board.get(r).size(); c++) {
+                board.get(r).get(c).update();
+            }
+        }
+    }
+
     /**
      * Dispose of all tiles in the board
      */

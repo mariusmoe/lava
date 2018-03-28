@@ -53,7 +53,9 @@ public class PlayState extends State {
     private Boolean multiplayer;
     private int serialNumber = 0;       // multiplayer packets can arrive out of order and are given
     private boolean canInterpolate = false;
-    // a serial number
+
+    private int xTileToBeUpdated;
+    private int yTileToBeUpdated;
 
     /**
      * Construct a new play state
@@ -104,7 +106,7 @@ public class PlayState extends State {
     @Override
     protected void handleInput() {
         if (Gdx.input.isKeyJustPressed(Input.Keys.BACK)){
-            // TODO: leave multiplayer game properly
+            game.playServices.leaveRoom();
             gsm.set(new MenuState(gsm, game));
             dispose();
         }
@@ -116,6 +118,7 @@ public class PlayState extends State {
         playerOne.update(dt);
         if (multiplayer){
             playerTwo.update(dt);
+            board.getBoard().get(yTileToBeUpdated).get(xTileToBeUpdated).update();
         }
         handleInput();
         if (toCancel){
@@ -125,61 +128,58 @@ public class PlayState extends State {
         //Gdx.app.log("LavaGame","xPos: " + player.getxPos() + " yPos: " + player.getyPos());
 
         // Check if in lava => dead
-
         if (board.getBoard().get(((playerOne.getyPos()-CUTOFF_BOTTOM)/TILE_SIZE))
-                            .get((playerOne.getxPos()/TILE_SIZE)).getHp() == 0) {
+                            .get((playerOne.getxPos()/TILE_SIZE)).getHp() <= 0 &&
+                System.currentTimeMillis() -
+                board.getBoard().get(((playerOne.getyPos()-CUTOFF_BOTTOM)/TILE_SIZE))
+                        .get((playerOne.getxPos()/TILE_SIZE)).getTimeTileBecameLava()< 1000) {
             Gdx.app.log(TAG,"Player died! abort game now...");
             // TODO: Kill the player
             // TODO: NYI send death message if multiplayer!!!
 
         }
 
-        // This is only for testing purposes
-        //board.getBoard().get((((playerOne.getyPos() - CUTOFF_BOTTOM) + (PLAYER_HEIGHT/2))/TILE_SIZE))
-        //                .get(((playerOne.getxPos() + (PLAYER_WIDTH/2))/TILE_SIZE))
-        //                .deteriorate();
-
-        // TODO: Decrease time for deterioration of tile
-        //       This has to be small enough to be able to send it reliably in multiplayer, but also
-        //       fas enough for the user to understand that walking over a tile deteriorate it
-        if (collector >= 0.033f){
+        if (collector >= 0.066f){
             board.getBoard().get((((playerOne.getyPos() - CUTOFF_BOTTOM) + (PLAYER_HEIGHT/2))/
                                   TILE_SIZE))
                             .get(((playerOne.getxPos() + (PLAYER_WIDTH/2))/TILE_SIZE))
                             .deteriorate();
+            board.getBoard().get((((playerOne.getyPos() - CUTOFF_BOTTOM) + (PLAYER_HEIGHT/2))/
+                                  TILE_SIZE))
+                            .get(((playerOne.getxPos() + (PLAYER_WIDTH/2))/TILE_SIZE))
+                            .update();
             // Todo: if multiplayer => send reliable message about damage to tile
             if (multiplayer){
                 // send reliable damage message
-                //sendReliableMessage();
+                game.playServices.sendUnreliableMessage(reliableMessage());
             }
             collector = 0;
         } else {
             collector += dt;
         }
 
+        if (multiplayer){
+            if (canInterpolate){
+                interpolate(dt, playerTwo.getxPos(), playerTwo.getyPos());
+            }
 
-        // Multiplayer stuff here
-            if (multiplayer){
-                if (canInterpolate){
-                    interpolate(dt, playerTwo.getxPos(), playerTwo.getyPos());
-                }
-
-            // 0.033 will trigger 33 times per second
+            // 0.033 will trigger 30 times per second
+            // 0.016 will trigger 60 times per second
             if (tickCollector >= 0.033f) {
                 // Build byte array
                 //Gdx.app.log(TAG," Building byte array: ");
 
-                sendUnreliableMessage();
+                game.playServices.sendUnreliableMessage(unreliableMessage());
                 //Gdx.app.log(TAG," Building byte array: " + Arrays.toString(message));
                 serialNumber++;
                 tickCollector = 0;
-        } else {
-            tickCollector += dt;
-        }
+            } else {
+                tickCollector += dt;
+            }
         }
     }
 
-    private void sendUnreliableMessage() {
+    private byte[] unreliableMessage() {
         byte pos = (byte) 'P';
         byte[] serialNumberByte = intToByteArray(serialNumber);
         byte[] xPos = intToByteArray(playerOne.getxPos());
@@ -201,10 +201,10 @@ public class PlayState extends State {
                 message[i + 1] = (byte) playerOne.getDir();
             }
         }
-        game.playServices.sendUnreliableMessage(message);
+        return message;
     }
 
-    private void sendReliableMessage() {
+    private byte[] reliableMessage() {
         byte messageType = (byte) 'D';
         byte[] xTile = intToByteArray(((playerOne.getxPos() + (PLAYER_WIDTH/2))/TILE_SIZE));
         byte[] yTile = intToByteArray((((playerOne.getyPos() - CUTOFF_BOTTOM) + (PLAYER_HEIGHT/2))/
@@ -219,7 +219,7 @@ public class PlayState extends State {
                 reliableMessage[i + 1] = yTile[i - xTile.length];
             }
         }
-        game.playServices.sendUnreliableMessage(reliableMessage);
+        return reliableMessage;
     }
 
     public void receivePosition(int receivedXPos, int receivedYPos, int dir){
@@ -237,6 +237,8 @@ public class PlayState extends State {
     public void receiveDamageToTile(int tileX, int tileY) {
         Gdx.app.log(TAG," Try to deteriorate tile nr: " + tileY + " : " + tileX );
         board.getBoard().get(tileY).get(tileX).deteriorate();
+        xTileToBeUpdated = tileX;
+        yTileToBeUpdated = tileY;
     }
 
     /**

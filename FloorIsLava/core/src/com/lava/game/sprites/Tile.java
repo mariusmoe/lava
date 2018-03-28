@@ -26,11 +26,12 @@ public class Tile {
     private int xPos;
     private int yPos;
     private int halfLife;
+    private long timeBecameLava;
     public static int deteriorationValue = 2;
 
     public Tile(Board board, int xPos, int yPos) {
         this.board = board;
-        this.halfLife = random(1,5);
+        this.halfLife = 5;      // random(1,5);
         this.xPos = xPos;
         this.yPos = yPos;
         this.texture = new Texture("TileA.png");
@@ -62,21 +63,28 @@ public class Tile {
     /* If this method is called the tile will deteriorate */
     public void deteriorate() {
         int deterioration = halfLife * deteriorationValue;
-        /*if (hp <= deterioration) {
-            board.dispose(this);
-        } else {*/
-            hp -= deterioration;
-            if (hp <= 75 && hp > 50) {
-                //texture.dispose();
-                texture = new Texture("TileA.png");
-            } else if (hp <= 50 && hp > 25) {
-                texture = new Texture("TileA2.png");
-            } else if (hp <= 25 && hp > 0) {
-                texture = new Texture("TileA4.png");
-            } else if (hp < 0) {
-                texture = new Texture("TileA6.png");
-            }
+        hp -= deterioration;
+        if (hp <= 0 && timeBecameLava == 0){
+            timeBecameLava = System.currentTimeMillis();
         }
+    }
+
+    public float getTimeTileBecameLava(){
+        return timeBecameLava;
+    }
+
+    public void update() {
+        if (hp <= 75 && hp > 50) {
+            //texture.dispose();
+            texture = new Texture("TileA.png");
+        } else if (hp <= 50 && hp > 25) {
+            texture = new Texture("TileA2.png");
+        } else if (hp <= 25 && hp > 0) {
+            texture = new Texture("TileA4.png");
+        } else if (hp < 0) {
+            texture = new Texture("TileA6.png");
+        }
+    }
     //}
 
     public Texture getTexture() {

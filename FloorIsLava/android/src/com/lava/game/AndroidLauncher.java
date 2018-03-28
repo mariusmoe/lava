@@ -73,7 +73,8 @@ public class AndroidLauncher extends AndroidApplication implements PlayServices{
 
 	// Participants who sent us their final score.
 	Set<String> mFinishedParticipants = new HashSet<>();
-	// The currently signed in account, used to check the account has changed outside of this activity when resuming.
+	// The currently signed in account, used to check the account has changed outside of this
+	// activity when resuming.
 	GoogleSignInAccount mSignedInAccount = null;
 
 	// are we already playing?
@@ -91,7 +92,8 @@ public class AndroidLauncher extends AndroidApplication implements PlayServices{
 	protected void onCreate (Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		mGoogleSignInClient = GoogleSignIn.getClient(this, GoogleSignInOptions.DEFAULT_GAMES_SIGN_IN);
+		mGoogleSignInClient = GoogleSignIn.getClient(this,
+													 GoogleSignInOptions.DEFAULT_GAMES_SIGN_IN);
 
 		signInSilently();
 
@@ -178,8 +180,9 @@ public class AndroidLauncher extends AndroidApplication implements PlayServices{
 			mState.showWaitingRoom();
 		}
 
-		// Called when we've successfully left the room (this happens a result of voluntarily leaving
-		// via a call to leaveRoom(). If we get disconnected, we get onDisconnectedFromRoom()).
+		// Called when we've successfully left the room (this happens a result of voluntarily
+		// leaving via a call to leaveRoom(). If we get disconnected, we get
+		// onDisconnectedFromRoom()).
 		@Override
 		public void onLeftRoom(int statusCode, @NonNull String roomId) {
 			// we have left the room; return to main screen.
@@ -208,7 +211,8 @@ public class AndroidLauncher extends AndroidApplication implements PlayServices{
 		}
 	}
 
-	OnRealTimeMessageReceivedListener mOnRealTimeMessageReceivedListener = new OnRealTimeMessageReceivedListener() {
+	OnRealTimeMessageReceivedListener mOnRealTimeMessageReceivedListener =
+			new OnRealTimeMessageReceivedListener() {
 		public int serialNumber = -1;
 
 		@Override
@@ -236,7 +240,9 @@ public class AndroidLauncher extends AndroidApplication implements PlayServices{
             if ((char) buf[0] == 'D') {
                 int tileX = byteArrayToInt(Arrays.copyOfRange(buf,1,5));
                 int tileY = byteArrayToInt(Arrays.copyOfRange(buf,5,9));
-                playState.receiveDamageToTile(tileX,tileY);
+                if (playState != null){
+					playState.receiveDamageToTile(tileX,tileY);
+				}
             }
         }
 	};
@@ -261,8 +267,8 @@ public class AndroidLauncher extends AndroidApplication implements PlayServices{
 	}
 
 	private RoomStatusUpdateCallback mRoomStatusUpdateCallback = new RoomStatusUpdateCallback() {
-		// Called when we are connected to the room. We're not ready to play yet! (maybe not everybody
-		// is connected yet).
+		// Called when we are connected to the room. We're not ready to play yet! (maybe not
+		// everybody is connected yet).
 		@Override
 		public void onConnectedToRoom(Room room) {
 			Log.d(TAG, "onConnectedToRoom.");
@@ -271,7 +277,8 @@ public class AndroidLauncher extends AndroidApplication implements PlayServices{
 			mParticipants = room.getParticipants();
 			mMyId = room.getParticipantId(mPlayerId);
 
-			// save room ID if its not initialized in onRoomCreated() so we can leave cleanly before the game starts.
+			// save room ID if its not initialized in onRoomCreated() so we can leave cleanly
+			// before the game starts.
 			if (mRoomId == null) {
 				mRoomId = room.getRoomId();
 			}
@@ -295,8 +302,8 @@ public class AndroidLauncher extends AndroidApplication implements PlayServices{
 
 		// We treat most of the room update callbacks in the same way: we update our list of
 		// participants and update the display. In a real game we would also have to check if that
-		// change requires some action like removing the corresponding player avatar from the screen,
-		// etc.
+		// change requires some action like removing the corresponding player avatar from the
+		// screen, etc.
 		@Override
 		public void onPeerDeclined(Room room, @NonNull List<String> arg1) {
 			updateRoom(room);
@@ -394,8 +401,10 @@ public class AndroidLauncher extends AndroidApplication implements PlayServices{
 			mSignedInAccount = googleSignInAccount;
 
 			// update the clients
-			mRealTimeMultiplayerClient = Games.getRealTimeMultiplayerClient(this, googleSignInAccount);
-			//mInvitationsClient = Games.getInvitationsClient(MainActivity.this, googleSignInAccount);
+			mRealTimeMultiplayerClient = Games.getRealTimeMultiplayerClient(this,
+																			googleSignInAccount);
+			//mInvitationsClient = Games.getInvitationsClient(MainActivity.this,
+			// googleSignInAccount);
 
 			// get the playerId from the PlayersClient
 			PlayersClient playersClient = Games.getPlayersClient(this, googleSignInAccount);
@@ -408,7 +417,8 @@ public class AndroidLauncher extends AndroidApplication implements PlayServices{
 							//switchToMainScreen();
 						}
 					})
-					.addOnFailureListener(createFailureListener("There was a problem getting the player id!"));
+					.addOnFailureListener(createFailureListener(
+							"There was a problem getting the player id!"));
 		}
 	}
 
@@ -533,9 +543,11 @@ public class AndroidLauncher extends AndroidApplication implements PlayServices{
 			}
 
 		mRealTimeMultiplayerClient.sendReliableMessage(message,
-				mRoomId, p.getParticipantId(), new RealTimeMultiplayerClient.ReliableMessageSentCallback() {
+				mRoomId, p.getParticipantId(),
+				new RealTimeMultiplayerClient.ReliableMessageSentCallback() {
 					@Override
-					public void onRealTimeMessageSent(int statusCode, int tokenId, String recipientParticipantId) {
+					public void onRealTimeMessageSent(int statusCode,
+													  int tokenId, String recipientParticipantId) {
 						Log.d(TAG, "RealTime message sent");
 						Log.d(TAG, "  statusCode: " + statusCode);
 						Log.d(TAG, "  tokenId: " + tokenId);
@@ -565,9 +577,10 @@ public class AndroidLauncher extends AndroidApplication implements PlayServices{
 	/**
 	 * Since a lot of the operations use tasks, we can use a common handler for whenever one fails.
 	 *
-	 * @param exception The exception to evaluate.  Will try to display a more descriptive reason for the exception.
-	 * @param details   Will display alongside the exception if you wish to provide more details for why the exception
-	 *                  happened
+	 * @param exception The exception to evaluate.  Will try to display a more descriptive reason
+	 *                  for the exception.
+	 * @param details   Will display alongside the exception if you wish to provide more details
+	 *                  for why the exception happened
 	 */
 	private void handleException(Exception exception, String details) {
 		int status = 0;
@@ -600,7 +613,8 @@ public class AndroidLauncher extends AndroidApplication implements PlayServices{
 				errorString = getString(R.string.match_error_locally_modified);
 				break;
 			default:
-				errorString = getString(R.string.unexpected_status, GamesClientStatusCodes.getStatusCodeString(status));
+				errorString = getString(R.string.unexpected_status,
+										GamesClientStatusCodes.getStatusCodeString(status));
 				break;
 		}
 
