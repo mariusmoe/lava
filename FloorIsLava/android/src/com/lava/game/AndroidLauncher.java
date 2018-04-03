@@ -1,5 +1,6 @@
 package com.lava.game;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
@@ -140,20 +141,15 @@ public class AndroidLauncher extends AndroidApplication implements PlayServices{
 		// Called when room has been created
 		@Override
 		public void onRoomCreated(int statusCode, Room room) {
-			debugLog("onRoomCreated(" + statusCode + ", " + room + ")");
-			//Log.d(TAG, "onRoomCreated(" + statusCode + ", " + room + ")");
-			if (statusCode != GamesCallbackStatusCodes.OK) {
-				Log.e(TAG, "*** Error: onRoomCreated, status " + statusCode);
-				//showGameError();
-				return;
+			if (statusCode == GamesCallbackStatusCodes.OK && room != null) {
+				Log.d(TAG, "Room " + room.getRoomId() + " created.");
+				// save room ID so we can leave cleanly before the game starts.
+				mRoomId = room.getRoomId();
+				//TODO show the waiting room UI
+				//showWaitingRoom(room);
+			} else {
+				Log.w(TAG, "Error creating room: " + statusCode);
 			}
-
-			// save room ID so we can leave cleanly before the game starts.
-			mRoomId = room.getRoomId();
-
-
-			//TODO show the waiting room UI
-			//showWaitingRoom(room);
 		}
 
 		// Called when room is fully connected.
@@ -265,7 +261,7 @@ public class AndroidLauncher extends AndroidApplication implements PlayServices{
 			this.playState.cancelGame();
 		}
 	}
-
+	private Activity thisActivity = this;
 	private RoomStatusUpdateCallback mRoomStatusUpdateCallback = new RoomStatusUpdateCallback() {
 		// Called when we are connected to the room. We're not ready to play yet! (maybe not
 		// everybody is connected yet).
@@ -330,6 +326,7 @@ public class AndroidLauncher extends AndroidApplication implements PlayServices{
 
 		@Override
 		public void onPeerLeft(Room room, @NonNull List<String> peersWhoLeft) {
+			leaveRoom();
 			updateRoom(room);
 			shouldCancelGame();
 		}
@@ -351,6 +348,7 @@ public class AndroidLauncher extends AndroidApplication implements PlayServices{
 
 		@Override
 		public void onPeersDisconnected(Room room, @NonNull List<String> peers) {
+			leaveRoom();
 			updateRoom(room);
 			shouldCancelGame();
 		}
