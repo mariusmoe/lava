@@ -105,6 +105,7 @@ public class PlayState extends State {
 
     @Override
     protected void handleInput() {
+        // Override back button presses to navigate to main menu
         if (Gdx.input.isKeyJustPressed(Input.Keys.BACK)){
             game.playServices.leaveRoom();
             gsm.set(new MenuState(gsm, game));
@@ -118,9 +119,13 @@ public class PlayState extends State {
         playerOne.update(dt);
         if (multiplayer){
             playerTwo.update(dt);
+            // Since texture changes should happen inside a "render loop" the tile that was damaged
+            // by playerTwo gets updated in the next iteration -> here
             board.getBoard().get(yTileToBeUpdated).get(xTileToBeUpdated).update();
         }
         handleInput();
+
+        // Canceling outside a "render loop" caused anomalies like black textures
         if (toCancel){
             gsm.set(new MenuState(gsm, game));
             dispose();
@@ -151,7 +156,7 @@ public class PlayState extends State {
             // Todo: if multiplayer => send reliable message about damage to tile
             if (multiplayer){
                 // send reliable damage message
-                game.playServices.sendUnreliableMessage(reliableMessage());
+                game.playServices.sendReliableMessage(reliableMessage());
             }
             collector = 0;
         } else {
