@@ -7,32 +7,35 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.lava.game.states.GameStateManager;
 import com.lava.game.states.MenuState;
+import com.lava.game.utils.SimpleDirectionGestureDetector;
 
 public class FloorIsLava extends ApplicationAdapter {
-	public static final int WIDTH = 800;
-	public static final int HEIGHT = 480;
+	public static final int WIDTH = 480;
+	public static final int HEIGHT = 800;
 	public static final String TITLE = "Lava Game";
 	private GameStateManager gsm;
 	private SpriteBatch batch;
 
 
-	// public static PlayServices playServices;
+	public static PlayServices playServices;
 
-	/*
-	public PongGame(PlayServices playServices)
-	{
+
+	public FloorIsLava(PlayServices playServices) {
 		this.playServices = playServices;
-		// setScreen(new MainMenu(this));
 	}
-	*/
+
 	
 	@Override
 	public void create () {
 		batch = new SpriteBatch();
 		gsm = new GameStateManager();
+
+		// Set background color
 		Gdx.gl.glClearColor(1, 0, 0, 1);
-		// gsm.push(new MenuState(gsm, this));
+
 		gsm.push(new MenuState(gsm, this));
+
+
 	}
 
 	@Override
@@ -46,4 +49,7 @@ public class FloorIsLava extends ApplicationAdapter {
 	public void dispose () {
 		batch.dispose();
 	}
+
+
+
 }

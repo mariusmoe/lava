@@ -3,7 +3,8 @@ android {
         config {
             keyAlias 'key0'
             keyPassword 'gruppe6'
-            storeFile file('/home/moe/workspace/progark/lava/secret_key.jks')
+            storeFile file('../../secret_key.jks')
+            //storeFile file('/home/moe/workspace/progark/lava/secret_key.jks')
             storePassword 'gruppe6'
         }
     }
@@ -20,7 +21,7 @@ android {
             jniLibs.srcDirs = ['libs']
         }
 
-        instrumentTest.setRoot('tests')
+        androidTest.setRoot('tests')
     }
     packagingOptions {
         exclude 'META-INF/robovm/ios/robovm.xml'
@@ -31,6 +32,7 @@ android {
         targetSdkVersion 27
         versionCode 1
         versionName "1.0"
+        //multiDexEnabled true
     }
     buildTypes {
         release {
