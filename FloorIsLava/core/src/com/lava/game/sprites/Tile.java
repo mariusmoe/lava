@@ -8,6 +8,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.lava.game.states.PlayState;
 
 import java.lang.reflect.Array;
+import java.util.Random;
 
 import static com.badlogic.gdx.math.MathUtils.random;
 
@@ -19,6 +20,8 @@ public class Tile {
 
     private Board board;    // Is board needed?
     private Texture texture;
+    private int tileType = 1;
+    private Random random = new Random();
     public static int WIDTH = 16;   // Overridden by the draw method in playState
     public static int HEIGHT = 16;  // Overridden by the draw method in playState
 
@@ -34,7 +37,8 @@ public class Tile {
         this.halfLife = 5;      // random(1,5);
         this.xPos = xPos;
         this.yPos = yPos;
-        this.texture = new Texture("TileA.png");
+        this.texture = new Texture("tiles/tile01.png");
+        this.tileType = random.nextInt(2) + 1;
     }
 
     public int getHalfLife() {
@@ -74,15 +78,45 @@ public class Tile {
     }
 
     public void update() {
-        if (hp <= 75 && hp > 50) {
+        if (hp <= 80 && hp > 60) {
             //texture.dispose();
-            texture = new Texture("TileA.png");
-        } else if (hp <= 50 && hp > 25) {
-            texture = new Texture("TileA2.png");
-        } else if (hp <= 25 && hp > 0) {
-            texture = new Texture("TileA4.png");
-        } else if (hp < 0) {
-            texture = new Texture("TileA6.png");
+            switch (tileType) {
+                case 1:
+                    texture = new Texture("tiles/tile12.png");
+                    break;
+                case 2:
+                    texture = new Texture("tiles/tile22.png");
+                    break;
+            }
+        } else if (hp <= 60 && hp > 40) {
+            switch (tileType) {
+                case 1:
+                    texture = new Texture("tiles/tile13.png");
+                    break;
+                case 2:
+                    texture = new Texture("tiles/tile23.png");
+                    break;
+            }
+        } else if (hp <= 40 && hp > 20) {
+            switch (tileType) {
+                case 1:
+                    texture = new Texture("tiles/tile14.png");
+                    break;
+                case 2:
+                    texture = new Texture("tiles/tile24.png");
+                    break;
+            }
+        } else if (hp <= 20 && hp > 0) {
+            switch (tileType) {
+                case 1:
+                    texture = new Texture("tiles/tile15.png");
+                    break;
+                case 2:
+                    texture = new Texture("tiles/tile25.png");
+                    break;
+            }
+        } else if (hp <= 0) {
+            texture = new Texture("tiles/tile06.png");
         }
     }
     //}
