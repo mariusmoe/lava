@@ -21,10 +21,26 @@ public class Tile {
     private Board board;    // Is board needed?
     private Random random = new Random();
     private int tileType = 1;
-    private Texture[] textures;
-    private Texture currentTexture;
     public static int WIDTH = 16;   // Overridden by the draw method in playState
     public static int HEIGHT = 16;  // Overridden by the draw method in playState
+    private Texture currentTexture;
+    private Texture[] textures;
+    private static Texture[] TEXTURES1 = {
+            new Texture("tiles/tile01.png"),
+            new Texture("tiles/tile12.png"),
+            new Texture("tiles/tile13.png"),
+            new Texture("tiles/tile14.png"),
+            new Texture("tiles/tile15.png"),
+            new Texture("tiles/tile06.png")
+    };
+    private static Texture[] TEXTURES2 = {
+            new Texture("tiles/tile01.png"),
+            new Texture("tiles/tile22.png"),
+            new Texture("tiles/tile23.png"),
+            new Texture("tiles/tile24.png"),
+            new Texture("tiles/tile25.png"),
+            new Texture("tiles/tile06.png")
+    };
 
     private int hp = 100;
     private int xPos;
@@ -33,8 +49,6 @@ public class Tile {
     private long timeBecameLava;
     public static int deteriorationValue = 2;
 
-    //TODO: Reconsider rewriting so that new textures are created only once
-
     public Tile(Board board, int xPos, int yPos) {
         this.board = board;
         this.halfLife = 5;      // random(1,5);
@@ -42,22 +56,13 @@ public class Tile {
         this.yPos = yPos;
         tileType = random.nextInt(2) + 1;
         textures = new Texture[6];
-        textures[0] = new Texture("tiles/tile01.png");
         switch (tileType) {
             case 1:
-                textures[1] = new Texture("tiles/tile12.png");
-                textures[2] = new Texture("tiles/tile13.png");
-                textures[3] = new Texture("tiles/tile14.png");
-                textures[4] = new Texture("tiles/tile15.png");
+                textures = TEXTURES1;
                 break;
             case 2:
-                textures[1] = new Texture("tiles/tile22.png");
-                textures[2] = new Texture("tiles/tile23.png");
-                textures[3] = new Texture("tiles/tile24.png");
-                textures[4] = new Texture("tiles/tile25.png");
-                break;
+                textures = TEXTURES2;
         }
-        textures[5] = new Texture("tiles/tile06.png");
         currentTexture = textures[0];
     }
 
@@ -117,8 +122,8 @@ public class Tile {
     }
 
     public void dispose() {
-        for (int i = 0; i < textures.length; i++) {
+        /* for (int i = 0; i < textures.length; i++) {
             textures[i].dispose();
-        }
+        } */
     }
 }
