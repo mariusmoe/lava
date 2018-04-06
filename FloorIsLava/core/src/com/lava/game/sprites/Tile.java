@@ -19,9 +19,10 @@ import static com.badlogic.gdx.math.MathUtils.random;
 public class Tile {
 
     private Board board;    // Is board needed?
-    private Texture texture;
-    private int tileType = 1;
     private Random random = new Random();
+    private int tileType = 1;
+    private Texture[] textures;
+    private Texture currentTexture;
     public static int WIDTH = 16;   // Overridden by the draw method in playState
     public static int HEIGHT = 16;  // Overridden by the draw method in playState
 
@@ -32,13 +33,32 @@ public class Tile {
     private long timeBecameLava;
     public static int deteriorationValue = 2;
 
+    //TODO: Reconsider rewriting so that new textures are created only once
+
     public Tile(Board board, int xPos, int yPos) {
         this.board = board;
         this.halfLife = 5;      // random(1,5);
         this.xPos = xPos;
         this.yPos = yPos;
-        this.texture = new Texture("tiles/tile01.png");
-        this.tileType = random.nextInt(2) + 1;
+        tileType = random.nextInt(2) + 1;
+        textures = new Texture[6];
+        textures[0] = new Texture("tiles/tile01.png");
+        switch (tileType) {
+            case 1:
+                textures[1] = new Texture("tiles/tile12.png");
+                textures[2] = new Texture("tiles/tile13.png");
+                textures[3] = new Texture("tiles/tile14.png");
+                textures[4] = new Texture("tiles/tile15.png");
+                break;
+            case 2:
+                textures[1] = new Texture("tiles/tile22.png");
+                textures[2] = new Texture("tiles/tile23.png");
+                textures[3] = new Texture("tiles/tile24.png");
+                textures[4] = new Texture("tiles/tile25.png");
+                break;
+        }
+        textures[5] = new Texture("tiles/tile06.png");
+        currentTexture = textures[0];
     }
 
     public int getHalfLife() {
@@ -78,54 +98,27 @@ public class Tile {
     }
 
     public void update() {
-        if (hp <= 80 && hp > 60) {
-            //texture.dispose();
-            switch (tileType) {
-                case 1:
-                    texture = new Texture("tiles/tile12.png");
-                    break;
-                case 2:
-                    texture = new Texture("tiles/tile22.png");
-                    break;
-            }
-        } else if (hp <= 60 && hp > 40) {
-            switch (tileType) {
-                case 1:
-                    texture = new Texture("tiles/tile13.png");
-                    break;
-                case 2:
-                    texture = new Texture("tiles/tile23.png");
-                    break;
-            }
-        } else if (hp <= 40 && hp > 20) {
-            switch (tileType) {
-                case 1:
-                    texture = new Texture("tiles/tile14.png");
-                    break;
-                case 2:
-                    texture = new Texture("tiles/tile24.png");
-                    break;
-            }
-        } else if (hp <= 20 && hp > 0) {
-            switch (tileType) {
-                case 1:
-                    texture = new Texture("tiles/tile15.png");
-                    break;
-                case 2:
-                    texture = new Texture("tiles/tile25.png");
-                    break;
-            }
-        } else if (hp <= 0) {
-            texture = new Texture("tiles/tile06.png");
+        if (hp <= 80 && hp > 60 && currentTexture != textures[1]) {
+            currentTexture = textures[1];
+        } else if (hp <= 60 && hp > 40 && currentTexture != textures[2]) {
+            currentTexture = textures[2];
+        } else if (hp <= 40 && hp > 20 && currentTexture != textures[3]) {
+            currentTexture = textures[3];
+        } else if (hp <= 20 && hp > 0 && currentTexture != textures[4]) {
+            currentTexture = textures[4];
+        } else if (hp <= 0 && currentTexture != textures[5]) {
+            currentTexture = textures[5];
         }
     }
     //}
 
     public Texture getTexture() {
-        return texture;
+        return currentTexture;
     }
 
     public void dispose() {
-        texture.dispose();
+        for (int i = 0; i < textures.length; i++) {
+            textures[i].dispose();
+        }
     }
 }

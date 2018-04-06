@@ -34,12 +34,13 @@ public class Board {
         textures[3] = new Texture("lavabg/lava_3.png");
         textures[4] = new Texture("lavabg/lava_4.png");
         textures[5] = new Texture("lavabg/lava_5.png");
-        for (int i = 0; i < 6; i++){
+        for (int i = 0; i < textures.length; i++){
             textures[i].setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.Repeat);
             frames[i] = new TextureRegion(textures[i]);
             frames[i].setRegion(0, 0, nTilesX*PlayState.TILE_SIZE, nTilesY* PlayState.TILE_SIZE);
         }
-        animation = new Animation<TextureRegion>(0.5f, frames);
+        animation = new Animation<TextureRegion>(0.1f, frames);
+        animation.setPlayMode(Animation.PlayMode.LOOP_PINGPONG);
         time = 0f;
 
         board = new ArrayList<ArrayList<Tile>>();
@@ -77,7 +78,7 @@ public class Board {
      * Dispose of all tiles in the board
      */
     public void dispose() {
-        for (int i = 0; i < 6; i++){
+        for (int i = 0; i < textures.length; i++){
             textures[i].dispose();
         }
         for (int r = 0; r < board.size(); r++) {
