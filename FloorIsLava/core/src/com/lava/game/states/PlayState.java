@@ -32,7 +32,7 @@ public class PlayState extends State {
     public static int PLAYER_HEIGHT = 16;   // Height in pixels of the player
     public static int PLAYER_WIDTH  = 16;   // Width  in pixels of the player
     public static int CUTOFF_BOTTOM = 80;   // Bottom offset (get some space at the bottom)
-    public static int TILE_SIZE     = 48;   // A tile is a square with that pany pixels
+    public static int TILE_SIZE     = 48;   // A tile is a square with that many pixels
     public static String TAG        = "LavaGame";   // Use "lava" or "Lava" in the regex for debugging
     public static int BOARD_HEIGHT = (Y_TILES * TILE_SIZE) + CUTOFF_BOTTOM;
     private float INTERPOLATION_CONSTANT = (float) 5;    // How fast the interpolation will happen
@@ -116,6 +116,7 @@ public class PlayState extends State {
     @Override
     public void update(float dt) {
         cam.update();   // Is this necessary?
+        board.update(dt);
         playerOne.update(dt);
         if (multiplayer){
             playerTwo.update(dt);
@@ -284,6 +285,7 @@ public class PlayState extends State {
         sb.begin();
         sb.setProjectionMatrix(cam.combined);
 
+        sb.draw(board.getBackground(), board.getBoard().get(0).get(0).getxPos() * TILE_SIZE, board.getBoard().get(0).get(0).getyPos() * TILE_SIZE + CUTOFF_BOTTOM, X_TILES * TILE_SIZE, Y_TILES * TILE_SIZE);
         for (int r = 0; r < board.getBoard().size(); r++) {
             for (int c = 0; c < board.getBoard().get(r).size(); c++) {
                 sb.draw(board.getBoard().get(r).get(c).getTexture(),

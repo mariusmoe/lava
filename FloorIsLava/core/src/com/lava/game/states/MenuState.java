@@ -167,7 +167,7 @@ public class MenuState extends State {
         handleInput();
         if (startMultiplayer){
             Gdx.app.log(TAG,"Starting game!");
-            Gdx.gl.glClearColor(0, 0, 1, 1);    // Only for debug purposes
+            Gdx.gl.glClearColor(0.1f, 0.1f, 0.1f, 1);
             gsm.set(new PlayState(gsm, game, true));
             dispose();
         }
@@ -175,7 +175,7 @@ public class MenuState extends State {
         switch (buttonPressed) {
             case 1:
                 // single player
-                Gdx.gl.glClearColor(0, 0, 1, 1);
+                Gdx.gl.glClearColor(0.1f, 0.1f, 0.1f, 1);
                 gsm.set(new PlayState(gsm, game, false));
                 dispose();
                 buttonPressed=0;
