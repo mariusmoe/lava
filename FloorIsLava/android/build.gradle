@@ -4,7 +4,6 @@ android {
             keyAlias 'key0'
             keyPassword 'gruppe6'
             storeFile file('../../secret_key.jks')
-            //storeFile file('/home/moe/workspace/progark/lava/secret_key.jks')
             storePassword 'gruppe6'
         }
     }

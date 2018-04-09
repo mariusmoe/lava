@@ -8,6 +8,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.lava.game.states.PlayState;
 
 import java.lang.reflect.Array;
+import java.util.Random;
 
 import static com.badlogic.gdx.math.MathUtils.random;
 
@@ -18,9 +19,28 @@ import static com.badlogic.gdx.math.MathUtils.random;
 public class Tile {
 
     private Board board;    // Is board needed?
-    private Texture texture;
+    private Random random = new Random();
+    private int tileType = 1;
     public static int WIDTH = 16;   // Overridden by the draw method in playState
     public static int HEIGHT = 16;  // Overridden by the draw method in playState
+    private Texture currentTexture;
+    private Texture[] textures;
+    private static Texture[] TEXTURES1 = {
+            new Texture("tiles/tile01.png"),
+            new Texture("tiles/tile12.png"),
+            new Texture("tiles/tile13.png"),
+            new Texture("tiles/tile14.png"),
+            new Texture("tiles/tile15.png"),
+            new Texture("tiles/tile06.png")
+    };
+    private static Texture[] TEXTURES2 = {
+            new Texture("tiles/tile01.png"),
+            new Texture("tiles/tile22.png"),
+            new Texture("tiles/tile23.png"),
+            new Texture("tiles/tile24.png"),
+            new Texture("tiles/tile25.png"),
+            new Texture("tiles/tile06.png")
+    };
 
     private int hp = 100;
     private int xPos;
@@ -34,7 +54,16 @@ public class Tile {
         this.halfLife = 5;      // random(1,5);
         this.xPos = xPos;
         this.yPos = yPos;
-        this.texture = new Texture("TileA.png");
+        tileType = random.nextInt(2) + 1;
+        textures = new Texture[6];
+        switch (tileType) {
+            case 1:
+                textures = TEXTURES1;
+                break;
+            case 2:
+                textures = TEXTURES2;
+        }
+        currentTexture = textures[0];
     }
 
     public int getHalfLife() {
@@ -74,24 +103,27 @@ public class Tile {
     }
 
     public void update() {
-        if (hp <= 75 && hp > 50) {
-            //texture.dispose();
-            texture = new Texture("TileA.png");
-        } else if (hp <= 50 && hp > 25) {
-            texture = new Texture("TileA2.png");
-        } else if (hp <= 25 && hp > 0) {
-            texture = new Texture("TileA4.png");
-        } else if (hp < 0) {
-            texture = new Texture("TileA6.png");
+        if (hp <= 80 && hp > 60 && currentTexture != textures[1]) {
+            currentTexture = textures[1];
+        } else if (hp <= 60 && hp > 40 && currentTexture != textures[2]) {
+            currentTexture = textures[2];
+        } else if (hp <= 40 && hp > 20 && currentTexture != textures[3]) {
+            currentTexture = textures[3];
+        } else if (hp <= 20 && hp > 0 && currentTexture != textures[4]) {
+            currentTexture = textures[4];
+        } else if (hp <= 0 && currentTexture != textures[5]) {
+            currentTexture = textures[5];
         }
     }
     //}
 
     public Texture getTexture() {
-        return texture;
+        return currentTexture;
     }
 
     public void dispose() {
-        texture.dispose();
+        /* for (int i = 0; i < textures.length; i++) {
+            textures[i].dispose();
+        } */
     }
 }
