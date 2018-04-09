@@ -81,10 +81,12 @@ public class MenuState extends State {
         singlePlayer = new Texture("button_task_2.png");
         playMultiplayer = new Texture("button_task_3.png");
 
+
         // Setup for buttons
         stage = new Stage(new FitViewport(FloorIsLava.WIDTH, FloorIsLava.HEIGHT));
         Gdx.input.setInputProcessor(stage);
         font = new BitmapFont();
+        font.getData().setScale(1.5f);
         skin = new Skin();
         // TODO: switch to gray buttons
         buttonAtlas = new TextureAtlas(Gdx.files.internal("ui-libgdx-20140505/ui-blue.atlas"));
@@ -97,9 +99,9 @@ public class MenuState extends State {
         textButtonStyle1.up = skin.getDrawable("button_01");
         textButtonStyle1.down = skin.getDrawable("button_02");
         textButtonStyle1.checked = skin.getDrawable("button_03");
-        button1 = new TextButton("Button1", textButtonStyle1);
-        button1.setSize(140,40);
-        button1.setPosition(FloorIsLava.WIDTH/2-70, 40);
+        button1 = new TextButton("Singleplayer", textButtonStyle1);
+        button1.setSize(240,80);
+        button1.setPosition(FloorIsLava.WIDTH/2-120, 40);
         stage.addActor(button1);
 
         button1.addListener(new ChangeListener() {
@@ -117,9 +119,9 @@ public class MenuState extends State {
         textButtonStyle2.up = skin.getDrawable("button_01");
         textButtonStyle2.down = skin.getDrawable("button_02");
         textButtonStyle2.checked = skin.getDrawable("button_03");
-        button2 = new TextButton("Button2", textButtonStyle2);
-        button2.setSize(140,40);
-        button2.setPosition(FloorIsLava.WIDTH/2-70, 140);
+        button2 = new TextButton("Multiplayer", textButtonStyle2);
+        button2.setSize(240,80);
+        button2.setPosition(FloorIsLava.WIDTH/2-120, 240);
         stage.addActor(button2);
 
         button2.addListener(new ChangeListener() {
@@ -137,9 +139,9 @@ public class MenuState extends State {
         textButtonStyle3.up = skin.getDrawable("button_01");
         textButtonStyle3.down = skin.getDrawable("button_02");
         textButtonStyle3.checked = skin.getDrawable("button_03");
-        button3 = new TextButton("Button3", textButtonStyle3);
-        button3.setSize(140,40);
-        button3.setPosition(FloorIsLava.WIDTH/2-70, 240);
+        button3 = new TextButton("Login", textButtonStyle3);
+        button3.setSize(240,80);
+        button3.setPosition(FloorIsLava.WIDTH/2-120, 440);
         stage.addActor(button3);
 
         button3.addListener(new ChangeListener() {
