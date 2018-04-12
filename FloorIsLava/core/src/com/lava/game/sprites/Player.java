@@ -18,7 +18,7 @@ public class Player {
     private int receivedYPos;
     private Texture texture;
     private Direction dir;  // the direction the player is facing
-    private static final int MOVEMENT = 200;
+    private static final int MOVEMENT = 310;
 
 
     /**

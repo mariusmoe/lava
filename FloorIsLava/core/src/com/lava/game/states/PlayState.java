@@ -29,10 +29,10 @@ public class PlayState extends State {
     // Remember that all pixel sizes are in "virtual" pixels stretched by the camera
     public static int X_TILES       = 10;   // Number of tiles in x direction
     public static int Y_TILES       = 12;   // Number of tiles in y direction
-    public static int PLAYER_HEIGHT = 16;   // Height in pixels of the player
-    public static int PLAYER_WIDTH  = 16;   // Width  in pixels of the player
-    public static int CUTOFF_BOTTOM = 80;   // Bottom offset (get some space at the bottom)
-    public static int TILE_SIZE     = 48;   // A tile is a square with that many pixels
+    public static int PLAYER_HEIGHT = 25;   //16;   // Height in pixels of the player
+    public static int PLAYER_WIDTH  = 25;   //16;   // Width  in pixels of the player
+    public static int CUTOFF_BOTTOM = 120;  //80;   // Bottom offset (get some space at the bottom)
+    public static int TILE_SIZE     = 72;   //48;   // A tile is a square with that pany pixels
     public static String TAG        = "LavaGame";   // Use "lava" or "Lava" in the regex for debugging
     public static int BOARD_HEIGHT = (Y_TILES * TILE_SIZE) + CUTOFF_BOTTOM;
     private float INTERPOLATION_CONSTANT = (float) 5;    // How fast the interpolation will happen
@@ -255,8 +255,8 @@ public class PlayState extends State {
      */
     private void interpolate(float dt, int xPos, int yPos) {
         if (playerTwo.getReceivedXPos() != 0 && playerTwo.getReceivedYPos() != 0){
-            if ((Math.abs(playerTwo.getxPos() - playerTwo.getReceivedXPos()) > 15) ||
-                (Math.abs(playerTwo.getyPos() - playerTwo.getReceivedYPos()) > 15)){
+            if ((Math.abs(playerTwo.getxPos() - playerTwo.getReceivedXPos()) > 25) ||
+                (Math.abs(playerTwo.getyPos() - playerTwo.getReceivedYPos()) > 25)){
                 Gdx.app.log(TAG," Interpolating " );
 
                     // TODO: Improve interpolation...

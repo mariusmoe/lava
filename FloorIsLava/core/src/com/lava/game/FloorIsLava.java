@@ -10,8 +10,9 @@ import com.lava.game.states.MenuState;
 import com.lava.game.utils.SimpleDirectionGestureDetector;
 
 public class FloorIsLava extends ApplicationAdapter {
-	public static final int WIDTH = 480;
-	public static final int HEIGHT = 800;
+	// 1280x720
+	public static final int WIDTH = 720;//480;
+	public static final int HEIGHT = 1280;//800;
 	public static final String TITLE = "Lava Game";
 	private GameStateManager gsm;
 	private SpriteBatch batch;

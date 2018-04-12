@@ -3,6 +3,7 @@ package com.lava.game.states;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector3;
+import com.lava.game.FloorIsLava;
 
 /**
  * Created by moe on 08.03.18.
@@ -17,7 +18,7 @@ public abstract class State {
     protected State(GameStateManager gsm)   {
         this.gsm = gsm;
         cam = new OrthographicCamera();
-        cam.setToOrtho(false, 480, 800);
+        cam.setToOrtho(false, FloorIsLava.WIDTH, FloorIsLava.HEIGHT);
         cam.update();
         mouse = new Vector3();
 
