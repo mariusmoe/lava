@@ -41,6 +41,14 @@ public class Tile {
             new Texture("tiles/tile25.png"),
             new Texture("tiles/tile06.png")
     };
+    private static Texture[] TEXTURES3 = {
+            new Texture("tiles/tile01.png"),
+            new Texture("tiles/tile32.png"),
+            new Texture("tiles/tile33.png"),
+            new Texture("tiles/tile34.png"),
+            new Texture("tiles/tile35.png"),
+            new Texture("tiles/tile06.png")
+    };
 
     private int hp = 100;
     private int xPos;
@@ -54,7 +62,7 @@ public class Tile {
         this.halfLife = 5;      // random(1,5);
         this.xPos = xPos;
         this.yPos = yPos;
-        tileType = random.nextInt(2) + 1;
+        tileType = random.nextInt(3) + 1;
         textures = new Texture[6];
         switch (tileType) {
             case 1:
@@ -62,6 +70,10 @@ public class Tile {
                 break;
             case 2:
                 textures = TEXTURES2;
+                break;
+            case 3:
+                textures = TEXTURES3;
+                break;
         }
         currentTexture = textures[0];
     }
