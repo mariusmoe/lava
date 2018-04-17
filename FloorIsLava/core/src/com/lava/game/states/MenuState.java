@@ -156,7 +156,9 @@ public class MenuState extends State {
     @Override
     protected void handleInput() {
         if(Gdx.input.isKeyJustPressed(Input.Keys.BACK)){
-            Gdx.app.exit();
+            dispose();
+            System.exit(0);     // Hack for avoiding context loss on onResume
+            //Gdx.app.exit();
         }
 
 
@@ -243,10 +245,12 @@ public class MenuState extends State {
 
     @Override
     public void render(SpriteBatch sb) {
-        stage.draw();
-        //stage.act(); // Could this prevent the clumsy solution with switch case?
+
+        // // Could this prevent the clumsy solution with switch case?
         sb.begin();
         sb.setProjectionMatrix(cam.combined);
+        stage.draw();
+        stage.act();
         //sb.draw(signIn, FloorIsLava.WIDTH/2-70,40, 140, 40);
         //sb.draw(singlePlayer, FloorIsLava.WIDTH/2-70,140, 140, 40);
         //sb.draw(playMultiplayer, FloorIsLava.WIDTH/2-70,240, 140, 40);

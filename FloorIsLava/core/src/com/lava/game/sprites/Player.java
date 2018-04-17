@@ -82,8 +82,13 @@ public class Player {
         NORTH, EAST, SOUTH, WEST
     }
 
-    public Player(Texture tex) {
-        this.texture = tex;
+    public Player(int player) {
+        if (player == 1){
+            this.texture = new Texture("pl.png");
+        } else {
+            this.texture = new Texture("player.png");
+        }
+
         this.xPos = FloorIsLava.WIDTH/2;
         this.yPos = FloorIsLava.HEIGHT/2;
 

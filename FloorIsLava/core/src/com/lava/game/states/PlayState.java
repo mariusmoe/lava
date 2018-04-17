@@ -70,9 +70,9 @@ public class PlayState extends State {
         this.board = new Board(X_TILES ,Y_TILES);
 
 
-        playerOne = new Player(new Texture("pl.png"));
+        playerOne = new Player(1);
         if (multiplayer){
-            playerTwo = new Player(new Texture("player.png"));
+            playerTwo = new Player(2);
             game.playServices.registerGameState(this);
         }
 
@@ -108,8 +108,8 @@ public class PlayState extends State {
         // Override back button presses to navigate to main menu
         if (Gdx.input.isKeyJustPressed(Input.Keys.BACK)){
             game.playServices.leaveRoom();
-            gsm.set(new MenuState(gsm, game));
             dispose();
+            gsm.set(new MenuState(gsm, game));
         }
     }
 
@@ -307,6 +307,9 @@ public class PlayState extends State {
     public void dispose() {
         board.dispose();
         playerOne.dispose();
+        if (multiplayer){
+            playerTwo.dispose();
+        }
     }
 
     // TODO - put this inside a utils helper class
