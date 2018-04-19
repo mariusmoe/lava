@@ -140,15 +140,16 @@ public class PlayState extends State {
             timeSurvived = System.currentTimeMillis() - timeSurvived;
             gsm.set(new EndState(gsm, game, timeSurvived, true));
         }
-        //Gdx.app.log("LavaGame","xPos: " + player.getxPos() + " yPos: " + player.getyPos());
 
         // Check if in lava => dead
-        if (board.getBoard().get(((playerOne.getyPos()-CUTOFF_BOTTOM)/TILE_SIZE))
-                            .get((playerOne.getxPos()/TILE_SIZE)).getHp() <= 0 &&
+        if (board.getBoard().get((((playerOne.getyPos() - CUTOFF_BOTTOM) + (PLAYER_HEIGHT/2))/TILE_SIZE))
+                .get(((playerOne.getxPos() + (PLAYER_WIDTH/2))/TILE_SIZE)).getHp() <= 0 &&
                 System.currentTimeMillis() -
-                board.getBoard().get(((playerOne.getyPos()-CUTOFF_BOTTOM)/TILE_SIZE))
-                        .get((playerOne.getxPos()/TILE_SIZE)).getTimeTileBecameLava()< 1000) {
-            Gdx.app.log(TAG,"Player died! abort game now...");
+                board.getBoard().get((((playerOne.getyPos() - CUTOFF_BOTTOM) + (PLAYER_HEIGHT/2))/TILE_SIZE))
+                .get(((playerOne.getxPos() + (PLAYER_WIDTH/2))/TILE_SIZE)).getTimeTileBecameLava() > 500) {
+            //Gdx.app.log(TAG,"Player died! abort game now..." + board.getBoard().get((((playerOne.getyPos() - CUTOFF_BOTTOM) + (PLAYER_HEIGHT/2))/
+            //                                                                         TILE_SIZE))
+            //        .get(((playerOne.getxPos() + (PLAYER_WIDTH/2))/TILE_SIZE)).getTimeTileBecameLava());
             if (multiplayer){
                 game.playServices.sendReliableMessage(reliableDeadMessage());
             }

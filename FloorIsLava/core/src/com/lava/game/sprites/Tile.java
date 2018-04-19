@@ -54,7 +54,7 @@ public class Tile {
     private int xPos;
     private int yPos;
     private int halfLife;
-    private long timeBecameLava;
+    private long timeBecameLava = (long) 0.0f;
     public static int deteriorationValue = 2;
 
     public Tile(Board board, int xPos, int yPos) {
@@ -105,12 +105,13 @@ public class Tile {
     public void deteriorate() {
         int deterioration = halfLife * deteriorationValue;
         hp -= deterioration;
-        if (hp <= 0 && timeBecameLava == 0){
+        if (hp <= 0 && timeBecameLava == (long) 0.0f){
             timeBecameLava = System.currentTimeMillis();
+            Gdx.app.log("LavaGame","Set time to: " + timeBecameLava);
         }
     }
 
-    public float getTimeTileBecameLava(){
+    public long getTimeTileBecameLava(){
         return timeBecameLava;
     }
 
