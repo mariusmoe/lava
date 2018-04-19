@@ -240,6 +240,11 @@ public class AndroidLauncher extends AndroidApplication implements PlayServices{
 					playState.receiveDamageToTile(tileX,tileY);
 				}
             }
+            if ((char) buf[0] == 'L'){
+				if (playState != null){
+					playState.playerTwoDied();
+				}
+			}
         }
 	};
 

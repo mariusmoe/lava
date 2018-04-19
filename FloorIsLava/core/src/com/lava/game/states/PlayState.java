@@ -57,6 +57,9 @@ public class PlayState extends State {
     private int xTileToBeUpdated;
     private int yTileToBeUpdated;
 
+    private long timeSurvived;
+    private boolean playerTwoDied = false;
+
     /**
      * Construct a new play state
      * @param gsm   game state manage
@@ -68,11 +71,12 @@ public class PlayState extends State {
         this.game = game;
         this.multiplayer = multiplayer;
         this.board = new Board(X_TILES ,Y_TILES);
+        timeSurvived = System.currentTimeMillis();
 
 
-        playerOne = new Player(new Texture("pl.png"));
+        playerOne = new Player(1);
         if (multiplayer){
-            playerTwo = new Player(new Texture("player.png"));
+            playerTwo = new Player(2);
             game.playServices.registerGameState(this);
         }
 
@@ -108,8 +112,8 @@ public class PlayState extends State {
         // Override back button presses to navigate to main menu
         if (Gdx.input.isKeyJustPressed(Input.Keys.BACK)){
             game.playServices.leaveRoom();
-            gsm.set(new MenuState(gsm, game));
             dispose();
+            gsm.set(new MenuState(gsm, game));
         }
     }
 
@@ -131,6 +135,11 @@ public class PlayState extends State {
             gsm.set(new MenuState(gsm, game));
             dispose();
         }
+        if (playerTwoDied){
+            dispose();
+            timeSurvived = System.currentTimeMillis() - timeSurvived;
+            gsm.set(new EndState(gsm, game, timeSurvived, true));
+        }
         //Gdx.app.log("LavaGame","xPos: " + player.getxPos() + " yPos: " + player.getyPos());
 
         // Check if in lava => dead
@@ -140,6 +149,11 @@ public class PlayState extends State {
                 board.getBoard().get(((playerOne.getyPos()-CUTOFF_BOTTOM)/TILE_SIZE))
                         .get((playerOne.getxPos()/TILE_SIZE)).getTimeTileBecameLava()< 1000) {
             Gdx.app.log(TAG,"Player died! abort game now...");
+            if (multiplayer){
+                game.playServices.sendReliableMessage(reliableDeadMessage());
+            }
+            timeSurvived = System.currentTimeMillis() - timeSurvived;
+            gsm.set(new EndState(gsm, game, timeSurvived, false));
             // TODO: Kill the player
             // TODO: NYI send death message if multiplayer!!!
 
@@ -183,6 +197,13 @@ public class PlayState extends State {
                 tickCollector += dt;
             }
         }
+    }
+
+    private byte[] reliableDeadMessage() {
+        byte[] reliableMessage = new byte[1];
+        reliableMessage[0] =  (byte) 'L';
+
+        return reliableMessage;
     }
 
     private byte[] unreliableMessage() {
@@ -307,6 +328,9 @@ public class PlayState extends State {
     public void dispose() {
         board.dispose();
         playerOne.dispose();
+        if (multiplayer){
+            playerTwo.dispose();
+        }
     }
 
     // TODO - put this inside a utils helper class
@@ -325,6 +349,7 @@ public class PlayState extends State {
     }
 
 
-
-
+    public void playerTwoDied() {
+        playerTwoDied = true;
+    }
 }
