@@ -84,9 +84,9 @@ public class Player {
 
     public Player(int player) {
         if (player == 1){
-            this.texture = new Texture("pl.png");
+            this.texture = new Texture("players/playerblue.png");
         } else {
-            this.texture = new Texture("player.png");
+            this.texture = new Texture("players/playergreen.png");
         }
 
         this.xPos = FloorIsLava.WIDTH/2;
